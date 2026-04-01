@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -34,6 +36,12 @@ public class AuthController {
     this.credentialService = credentialService;
   }
 
+  /**
+   * Authenticates the user in the system
+   *
+   * @param request The object with e-mail and password data
+   * @return Returns the user object, the token, and his expiration date when successful. Otherwise, returns UNAUTHORIZED when a user with e-mail provided is already exists
+   */
   @PostMapping("/login")
   public AuthResponse login(@RequestBody LoginRequest request) {
     User user = userService.getByEmail(request.getEmail());
@@ -48,8 +56,7 @@ public class AuthController {
     Credential credential = credentialService.getByUserId(user.getId());
 
     if (
-      credential == null ||
-        !passwordService.matches(request.getPassword(), credential.getHash())
+      credential == null || !passwordService.matches(request.getPassword(), credential.getHash())
     ) {
       throw new ResponseStatusException(
         HttpStatus.UNAUTHORIZED,
@@ -57,10 +64,16 @@ public class AuthController {
       );
     }
 
-    AuthResponse authResponse = jwtService.generateToken(request.getEmail());
+    AuthResponse authResponse = jwtService.generateToken(request.getEmail(), List.of(user.getType()));
     return new AuthResponse(authResponse.expirationDate, user, authResponse.token);
   }
 
+  /**
+   * Create a new user and sign in him
+   *
+   * @param request An object with name, email, and password attributes
+   * @return Returns the user object, the token, and his expiration date when successful. Otherwise, returns UNAUTHORIZED when a user with e-mail provided is already exists
+   */
   @PostMapping("/register")
   public AuthResponse register(@RequestBody RegisterRequest request) {
     User existsUser = userService.getByEmail(request.getEmail());
@@ -79,7 +92,7 @@ public class AuthController {
     String hash = passwordService.hashPassword(request.getPassword());
     credentialService.add(hash, createdUser.getId());
 
-    AuthResponse authResponse = jwtService.generateToken(request.getEmail());
+    AuthResponse authResponse = jwtService.generateToken(request.getEmail(), List.of(UserType.USER));
     return new AuthResponse(authResponse.expirationDate, newUser, authResponse.token);
   }
 }
