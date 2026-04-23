@@ -6,7 +6,7 @@ plugins {
 
 group = 'com.crm'
 version = '0.0.1'
-description = 'CRM Kizuna'
+description = 'CRM Karma'
 
 java {
   toolchain {
