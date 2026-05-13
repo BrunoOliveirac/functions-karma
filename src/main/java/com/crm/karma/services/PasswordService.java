@@ -1,4 +1,4 @@
-package com.crm.kizuna.services;
+package com.crm.karma.services;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
