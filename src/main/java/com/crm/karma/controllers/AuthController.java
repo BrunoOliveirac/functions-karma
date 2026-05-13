@@ -11,6 +11,8 @@ import com.crm.karma.services.CredentialService;
 import com.crm.karma.services.JwtService;
 import com.crm.karma.services.PasswordService;
 import com.crm.karma.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,6 +24,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/auth")
+@Tag(name = "Auth")
 public class AuthController {
 
   private final JwtService jwtService;
@@ -42,6 +45,7 @@ public class AuthController {
    * @param request The object with e-mail and password data
    * @return Returns the user object, the token, and his expiration date when successful. Otherwise, returns UNAUTHORIZED when a user with e-mail provided is already exists
    */
+  @Operation(summary = "Login an user")
   @PostMapping("/login")
   public AuthResponse login(@RequestBody LoginRequest request) {
     User user = userService.getByEmail(request.getEmail());
@@ -74,6 +78,7 @@ public class AuthController {
    * @param request An object with name, email, and password attributes
    * @return Returns the user object, the token, and his expiration date when successful. Otherwise, returns UNAUTHORIZED when a user with e-mail provided is already exists
    */
+  @Operation(summary = "Create a new user")
   @PostMapping("/register")
   public AuthResponse register(@RequestBody RegisterRequest request) {
     User existsUser = userService.getByEmail(request.getEmail());
