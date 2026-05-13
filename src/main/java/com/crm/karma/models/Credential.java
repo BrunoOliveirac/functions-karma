@@ -1,4 +1,4 @@
-package com.crm.kizuna.models;
+package com.crm.karma.models;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

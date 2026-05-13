@@ -1,7 +1,7 @@
-package com.crm.kizuna.services;
+package com.crm.karma.services;
 
-import com.crm.kizuna.models.Credential;
-import com.crm.kizuna.repositories.CredentialRepository;
+import com.crm.karma.models.Credential;
+import com.crm.karma.repositories.CredentialRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;

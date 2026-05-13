@@ -1,6 +1,6 @@
-package com.crm.kizuna.repositories;
+package com.crm.karma.repositories;
 
-import com.crm.kizuna.models.User;
+import com.crm.karma.models.User;
 import lombok.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 

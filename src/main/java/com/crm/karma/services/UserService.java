@@ -1,7 +1,7 @@
-package com.crm.kizuna.services;
+package com.crm.karma.services;
 
-import com.crm.kizuna.models.User;
-import com.crm.kizuna.repositories.UserRepository;
+import com.crm.karma.models.User;
+import com.crm.karma.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
 @Service

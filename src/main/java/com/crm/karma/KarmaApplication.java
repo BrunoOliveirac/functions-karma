@@ -1,4 +1,4 @@
-package com.crm.kizuna;
+package com.crm.karma;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,9 +6,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
 @EnableJpaAuditing
-public class KizunaApplication {
+public class KarmaApplication {
 
   public static void main(String[] args) {
-    SpringApplication.run(KizunaApplication.class, args);
+    SpringApplication.run(com.crm.karma.KarmaApplication.class, args);
   }
 }
