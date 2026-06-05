@@ -79,9 +79,9 @@ public class SectorController {
    * @return OK status when deletion a sector is successful
    */
   @Operation(summary = "Delete logically a specific sector")
-  @DeleteMapping("/delete")
-  public StatusResponse deleteSector(@RequestBody Sector sector) {
-    sectorService.delete(sector);
+  @DeleteMapping("/delete/{sectorId}")
+  public StatusResponse deleteSector(@PathVariable UUID sectorId) {
+    sectorService.delete(sectorId);
     return new StatusResponse("OK");
   }
 }

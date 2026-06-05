@@ -83,9 +83,9 @@ public class ClientController {
    * @return OK status when deletion a client is successful
    */
   @Operation(summary = "Delete logically a specific client")
-  @DeleteMapping("/delete")
-  public StatusResponse deleteClient(@RequestBody Client client) {
-    clientService.delete(client);
+  @DeleteMapping("/delete/{clientId}")
+  public StatusResponse deleteClient(@PathVariable UUID clientId) {
+    clientService.delete(clientId);
     return new StatusResponse("OK");
   }
 

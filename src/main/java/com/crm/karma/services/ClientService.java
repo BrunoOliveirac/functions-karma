@@ -66,7 +66,9 @@ public class ClientService {
     clientRepository.save(client);
   }
 
-  public void delete(Client client) {
+  public void delete(UUID clientId) {
+    Client client = clientRepository.findById(clientId).orElseThrow(() -> new RuntimeException(("Client not found!")));
+
     client.setDeletedAt(Instant.now());
     clientRepository.save(client);
   }

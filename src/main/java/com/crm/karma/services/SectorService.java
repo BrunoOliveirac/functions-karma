@@ -35,7 +35,9 @@ public class SectorService {
     return newSector.getId();
   }
 
-  public void delete(Sector sector) {
+  public void delete(UUID sectorId) {
+    Sector sector = sectorRepository.findById(sectorId).orElseThrow(() -> new RuntimeException("Sector not found!"));
+
     sector.setDeletedAt(Instant.now());
     sectorRepository.save(sector);
   }
