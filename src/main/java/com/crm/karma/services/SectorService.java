@@ -19,11 +19,11 @@ public class SectorService {
   }
 
   public List<Sector> getAll(UUID userId) {
-    return sectorRepository.findAllByUserIdAndDeletedAtIsNull(userId);
+    return sectorRepository.findAllByUserIdAndDeletedAtIsNullOrderByNameAsc(userId);
   }
 
   public List<Sector> getAllActive(UUID userId) {
-    return sectorRepository.findAllByUserIdAndActiveTrueAndDeletedAtIsNull(userId);
+    return sectorRepository.findAllByUserIdAndActiveTrueAndDeletedAtIsNullOrderByNameAsc(userId);
   }
 
   public Optional<Sector> getById(UUID sectorId) {

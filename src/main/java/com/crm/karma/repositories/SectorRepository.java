@@ -11,7 +11,7 @@ import java.util.UUID;
 @Repository
 public interface SectorRepository extends JpaRepository<@NonNull Sector, @NonNull UUID> {
 
-  List<Sector> findAllByUserIdAndActiveTrueAndDeletedAtIsNull(UUID userId);
+  List<Sector> findAllByUserIdAndActiveTrueAndDeletedAtIsNullOrderByNameAsc(UUID userId);
 
-  List<Sector> findAllByUserIdAndDeletedAtIsNull(UUID userId);
+  List<Sector> findAllByUserIdAndDeletedAtIsNullOrderByNameAsc(UUID userId);
 }

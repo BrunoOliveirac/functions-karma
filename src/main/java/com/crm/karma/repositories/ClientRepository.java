@@ -12,7 +12,7 @@ import java.util.UUID;
 @Repository
 public interface ClientRepository extends JpaRepository<@NonNull Client, @NonNull UUID> {
 
-  List<Client> findAllByUserIdAndDeletedAtIsNull(UUID userId);
+  List<Client> findAllByUserIdAndDeletedAtIsNullOrderByNameAsc(UUID userId);
 
   Optional<Client> findByUserIdAndEmailAndDeletedAtIsNull(UUID userId, String email);
 }

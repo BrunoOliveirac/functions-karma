@@ -24,7 +24,7 @@ public class ClientService {
   }
 
   public List<Client> getAll(UUID userId) {
-    return clientRepository.findAllByUserIdAndDeletedAtIsNull(userId);
+    return clientRepository.findAllByUserIdAndDeletedAtIsNullOrderByNameAsc(userId);
   }
 
   public Optional<Client> getById(UUID clientId) {
