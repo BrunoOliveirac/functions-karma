@@ -2,6 +2,7 @@ package com.crm.karma.controllers;
 
 import com.crm.karma.models.Client;
 import com.crm.karma.requests.CheckEmailRequest;
+import com.crm.karma.requests.UpsertClientRequest;
 import com.crm.karma.responses.StatusResponse;
 import com.crm.karma.services.ClientService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,7 +42,7 @@ public class ClientController {
    * Get the client to show your details
    *
    * @param clientId Client ID of client to be g
-   * @return The customer or null as the result of the query
+   * @return The client or null as the result of the query
    */
   @Operation(summary = "Get a specific client")
   @GetMapping("/{clientId}")
@@ -57,7 +58,7 @@ public class ClientController {
    */
   @Operation(summary = "Create or edit a client")
   @PostMapping("/upsert")
-  public UUID upsertClient(@RequestBody Client client) {
+  public UUID upsertClient(@RequestBody UpsertClientRequest client) {
     return clientService.save(client);
   }
 
@@ -78,11 +79,11 @@ public class ClientController {
   /**
    * Delete the client from the system
    *
-   * @param clientId Client ID to be deleted
+   * @param client Client to be deleted
    * @return OK status when deletion a client is successful
    */
-  @Operation(summary = "Delete a specific client")
-  @DeleteMapping("/{clientId}")
+  @Operation(summary = "Delete logically a specific client")
+  @DeleteMapping("/delete/{clientId}")
   public StatusResponse deleteClient(@PathVariable UUID clientId) {
     clientService.delete(clientId);
     return new StatusResponse("OK");
