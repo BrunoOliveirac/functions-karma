@@ -17,10 +17,11 @@ Em termos simples: imagine um caderno digital onde cada usuário cadastra seus *
 Por enquanto existem **dois fluxos principais**:
 
 | Fluxo            | O que faz                                                                                                                                                                         |
-| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Autenticação** | Criar conta (`/auth/register`) e entrar no sistema (`/auth/login`). Após o login, a API devolve um **token** (como um “passe”) que identifica o usuário nas próximas requisições. |
 | **Clientes**     | Listar, criar, editar, favoritar e excluir clientes vinculados a um usuário. Essas rotas exigem o token de login.                                                                 |
-| **Setores**      | Listar, criar, editar e excluir setores vinculados a um usuário. Essas rotas exigem o token de login.                                                                             |
+| **Projetos**     | Listar, criar, editar, ativar/desativar e excluir projetos vinculados a um usuário. Essas rotas exigem o token de login.                                                          |
+| **Setores**      | Listar, criar, editar, ativar/desativar e excluir setores vinculados a um usuário. Essas rotas exigem o token de login.                                                           |
 
 ### Tecnologias
 
@@ -146,10 +147,11 @@ In plain terms: each user keeps a list of **clients**. This repository handles *
 There are **two main flows** so far:
 
 | Flow               | Description                                                                                                                                            |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+|--------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Authentication** | Create an account (`/auth/register`) and sign in (`/auth/login`). After login, the API returns a **token** that identifies the user on later requests. |
 | **Clients**        | List, create, update, favorite, and delete clients for a user. These routes require a valid login token.                                               |
-| **Sectors**        | List, create, update and delete clients for a user. These routes require a valid login token.                                                          |
+| **Projects**       | List, create, update, delete, and activate/deactivate projects for a user. These routes require a valid login token.                                   |
+| **Sectors**        | List, create, update, delete, and activate/deactivate sector for a user. These routes require a valid login token.                                     |
 
 ### Tech stack
 

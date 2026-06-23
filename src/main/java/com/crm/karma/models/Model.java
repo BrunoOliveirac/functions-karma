@@ -41,4 +41,8 @@ public abstract class Model {
   @LastModifiedDate
   @Column(name = "updated_at")
   private Instant updatedAt;
+
+  public void toggleStatus() {
+    this.active = !this.active;
+  }
 }
