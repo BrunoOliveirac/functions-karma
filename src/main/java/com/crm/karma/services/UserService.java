@@ -13,11 +13,15 @@ public class UserService {
   }
 
   public User getByEmail(String email) {
-    return userRepository.findByEmail(email).orElse(null);
+    return userRepository.findByEmailAndDeletedAtIsNull(email).orElse(null);
   }
 
   public User add(User user) {
     user.setActive(true);
+    return userRepository.save(user);
+  }
+
+  public User save(User user) {
     return userRepository.save(user);
   }
 

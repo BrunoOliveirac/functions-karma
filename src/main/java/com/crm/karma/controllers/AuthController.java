@@ -57,6 +57,13 @@ public class AuthController {
       );
     }
 
+    if (!user.getActive()) {
+      throw new ResponseStatusException(
+        HttpStatus.UNAUTHORIZED,
+        "E-mail or password are incorrect!"
+      );
+    }
+
     Credential credential = credentialService.getByUserId(user.getId());
 
     if (

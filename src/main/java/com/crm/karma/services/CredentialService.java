@@ -24,6 +24,18 @@ public class CredentialService {
     credentialRepository.save(credential);
   }
 
+  public void updatePassword(UUID userId, String hash) {
+    Credential credential = getByUserId(userId);
+
+    if (credential == null) {
+      add(hash, userId);
+      return;
+    }
+
+    credential.setHash(hash);
+    credentialRepository.save(credential);
+  }
+
   public void delete(UUID id) {
     credentialRepository.deleteById(id);
   }

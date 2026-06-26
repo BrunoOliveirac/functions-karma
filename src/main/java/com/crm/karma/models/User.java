@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.time.Instant;
+
 @Entity
 @Table(name = "users")
 @Getter
@@ -31,4 +33,7 @@ public class User extends Model {
   @Column(nullable = false)
   private UserType type;
 
+  @Schema(description = "User's deletion date")
+  @Column(name = "deleted_at")
+  private Instant deletedAt;
 }
