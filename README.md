@@ -10,17 +10,31 @@
 
 O **Karma CRM** é um **projeto de aprendizado** — não é um produto comercial nem um sistema completo. A ideia é experimentar, na prática, como funciona o **backend** (a parte “invisível” que roda no servidor) de um CRM: receber pedidos de um aplicativo ou site, validar quem está logado e salvar informações no banco de dados.
 
-Em termos simples: imagine um caderno digital onde cada usuário cadastra seus **clientes**. Este repositório cuida de **registrar usuários**, **fazer login** e **gerenciar clientes** de forma segura.
-
 ### O que já funciona hoje?
 
-Por enquanto existem **dois fluxos principais**:
+Os fluxos implementados variam conforme o tipo de usuário:
 
-| Fluxo            | O que faz                                                                                                                                                                         |
-| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Autenticação** | Criar conta (`/auth/register`) e entrar no sistema (`/auth/login`). Após o login, a API devolve um **token** (como um “passe”) que identifica o usuário nas próximas requisições. |
-| **Clientes**     | Listar, criar, editar, favoritar e excluir clientes vinculados a um usuário. Essas rotas exigem o token de login.                                                                 |
-| **Setores**      | Listar, criar, editar e excluir setores vinculados a um usuário. Essas rotas exigem o token de login.                                                                             |
+#### Admin
+
+| Fluxo            | O que faz                                                                                                      |
+| ---------------- | -------------------------------------------------------------------------------------------------------------- |
+| **Autenticação** | Entrar no sistema. Após o login, a API devolve um **token** que identifica o usuário nas próximas requisições. |
+| **Suportes**     | Listar, criar, editar, validar e-mail, ativar/desativar, trocar senha e excluir usuários do tipo suporte       |
+
+#### Usuário
+
+| Fluxo            | O que faz                                                                                                                                      |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Autenticação** | Criar conta e entrar no sistema. Após o login, a API devolve um **token** (como um “passe”) que identifica o usuário nas próximas requisições. |
+| **Clientes** | Listar, criar, editar, favoritar e excluir clientes vinculados a um usuário. Essas rotas exigem o token de login. |
+| **Projetos** | Listar, criar, editar, ativar/desativar e excluir projetos vinculados a um usuário. Essas rotas exigem o token de login. |
+| **Setores** | Listar, criar, editar, ativar/desativar e excluir setores vinculados a um usuário. Essas rotas exigem o token de login. |
+
+#### Suporte
+
+| Fluxo            | O que faz                                                                                                      |
+| ---------------- | -------------------------------------------------------------------------------------------------------------- |
+| **Autenticação** | Entrar no sistema. Após o login, a API devolve um **token** que identifica o usuário nas próximas requisições. |
 
 ### Tecnologias
 
@@ -139,17 +153,31 @@ src/main/java/com/crm/karma/
 
 **Karma CRM** is a **learning project** — not a commercial product or a full-featured system. It explores how the **backend** of a simple CRM works: receiving requests from an app or website, verifying who is logged in, and storing data in a database.
 
-In plain terms: each user keeps a list of **clients**. This repository handles **sign-up**, **login**, and **client management** in a secure way.
-
 ### What works today?
 
-There are **two main flows** so far:
+Implemented flows vary by user type:
 
-| Flow               | Description                                                                                                                                            |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Authentication** | Create an account (`/auth/register`) and sign in (`/auth/login`). After login, the API returns a **token** that identifies the user on later requests. |
-| **Clients**        | List, create, update, favorite, and delete clients for a user. These routes require a valid login token.                                               |
-| **Sectors**        | List, create, update and delete clients for a user. These routes require a valid login token.                                                          |
+#### Admin
+
+| Flow               | Description                                                                                          |
+| ------------------ | ---------------------------------------------------------------------------------------------------- |
+| **Authentication** | Sign in. After login, the API returns a **token** that identifies the user on later requests.        |
+| **Support staff**  | List, create, update, validate email, activate/deactivate, change password, and delete support users |
+
+#### User
+
+| Flow               | Description                                                                                                          |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------- |
+| **Authentication** | Create an account and sign in. After login, the API returns a **token** that identifies the user on later requests.  |
+| **Clients**        | List, create, update, favorite, and delete clients for a user. These routes require a valid login token.             |
+| **Projects**       | List, create, update, delete, and activate/deactivate projects for a user. These routes require a valid login token. |
+| **Sectors**        | List, create, update, delete, and activate/deactivate sector for a user. These routes require a valid login token.   |
+
+#### Support
+
+| Flow               | Description                                                                                   |
+| ------------------ | --------------------------------------------------------------------------------------------- |
+| **Authentication** | Sign in. After login, the API returns a **token** that identifies the user on later requests. |
 
 ### Tech stack
 
