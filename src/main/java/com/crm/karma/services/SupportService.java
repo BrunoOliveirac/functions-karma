@@ -45,7 +45,7 @@ public class SupportService {
   }
 
   public Boolean checkEmail(CheckSupportEmailRequest request) {
-    var existingUser = userRepository.findByEmailAndDeletedAtIsNull(request.getEmail());
+    var existingUser = userRepository.findByEmail(request.getEmail());
 
     return existingUser
       .map(user -> request.getSupportId() != null && user.getId().equals(request.getSupportId()))

@@ -70,7 +70,7 @@ public class AuthController {
       credential == null || !passwordService.matches(request.getPassword(), credential.getHash())
     ) {
       throw new ResponseStatusException(
-        HttpStatus.UNAUTHORIZED,
+        HttpStatus.UNAUTHORIZED, 
         "E-mail or password are incorrect!"
       );
     }

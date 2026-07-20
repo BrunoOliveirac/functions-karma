@@ -13,7 +13,7 @@ public class UserService {
   }
 
   public User getByEmail(String email) {
-    return userRepository.findByEmailAndDeletedAtIsNull(email).orElse(null);
+    return userRepository.findByEmail(email).orElse(null);
   }
 
   public User add(User user) {

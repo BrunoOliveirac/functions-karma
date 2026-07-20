@@ -4,7 +4,7 @@ spring.application.name=karma
 jwt.secret=change-me-to-a-long-random-secret-key
 
 # DATABASE — adjust host, port, database name, user and password to your local PostgreSQL
-spring.datasource.url=jdbc:postgresql://localhost:5432/karma_homol
+spring.datasource.url=jdbc:postgresql://localhost:5432/karma_homol?reWriteBatchedInserts=true
 spring.datasource.username=postgres
 spring.datasource.password=your-password-here
 
@@ -15,3 +15,8 @@ spring.jpa.hibernate.ddl-auto=update
 # FLYWAY — runs SQL migrations on startup
 spring.flyway.enabled=true
 spring.flyway.locations=classpath:db/migration
+
+# Use only when the database already exists (e.g. created via Hibernate)
+# and Flyway has never run. Remove these lines on a fresh database setup.
+# spring.flyway.baseline-on-migrate=true
+# spring.flyway.baseline-version=202607070000

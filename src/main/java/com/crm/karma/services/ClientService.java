@@ -34,7 +34,6 @@ public class ClientService {
   public UUID save(UpsertClientRequest upsertClient) {
     Client client = new Client();
 
-
     if (upsertClient.getId() != null) {
       client = getById(upsertClient.getId())
         .orElseThrow(() -> new RuntimeException("Client not found!"));
