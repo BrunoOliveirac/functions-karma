@@ -1,10 +1,12 @@
 package com.crm.karma.controllers;
 
 import com.crm.karma.models.User;
+import com.crm.karma.repositories.UserRepository;
 import com.crm.karma.requests.*;
 import com.crm.karma.responses.PaginatedResponse;
 import com.crm.karma.responses.StatusResponse;
 import com.crm.karma.services.MemberService;
+import com.crm.karma.services.ProjectMemberService;
 import com.crm.karma.services.UserMemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,13 +25,22 @@ import java.util.UUID;
 @PreAuthorize("hasRole('USER')")
 @Tag(name = "Members")
 public class MemberController {
+  private final UserRepository userRepository;
 
   private final MemberService memberService;
   private final UserMemberService userMemberService;
+  private final ProjectMemberService projectMemberService;
 
-  public MemberController(MemberService memberService, UserMemberService userMemberService) {
+  public MemberController(
+    MemberService memberService,
+    UserRepository userRepository,
+    UserMemberService userMemberService,
+    ProjectMemberService projectMemberService
+  ) {
     this.memberService = memberService;
+    this.userRepository = userRepository;
     this.userMemberService = userMemberService;
+    this.projectMemberService = projectMemberService;
   }
 
   /**
@@ -42,8 +53,6 @@ public class MemberController {
   public List<User> listMembers() {
     return memberService.getAll();
   }
-
-  // adicionar slug para filtragem
 
   /**
    * Get all linked members to the logged user with pagination
@@ -76,15 +85,40 @@ public class MemberController {
   }
 
   /**
-   * Create or update a member user
+   * Get All project IDS linked to a member
    *
-   * @param request The member data to be created or updated
-   * @return Member ID created or updated
+   * @param memberId Member ID
+   * @return List of project IDs
+   */
+  @Operation(summary = "Get all project IDs linked to a member")
+  @GetMapping("/projects/{memberId}")
+  public List<UUID> getLinkedProjectIds(@PathVariable UUID memberId) {
+    return projectMemberService.findByMemberId(memberId);
+  }
+
+  /**
+   * Create a member user
+   *
+   * @param request The member data to be created
    */
   @Operation(summary = "Create a member user")
   @PostMapping("/create")
-  public UUID createMember(@RequestBody CreateMemberRequest request) {
-    return memberService.add(request);
+  public void createMember(@RequestBody CreateMemberRequest request) {
+    memberService.add(request);
+  }
+
+  /**
+   * Update a member user
+   *
+   * @param request The member data to be updated
+   */
+  @Operation(summary = "Update a member user")
+  @PostMapping("/update/{memberId}")
+  public void updateMember(
+    @PathVariable UUID memberId,
+    @RequestBody UpdateMemberRequest request
+  ) {
+    memberService.update(request);
   }
 
   /**
@@ -94,12 +128,52 @@ public class MemberController {
    * @return Member ID created or updated
    */
   @Operation(summary = "Update a member user")
-  @PostMapping("/update/{memberId}")
-  public UUID updateMember(
+  @PostMapping("/management-projects/{memberId}")
+  public StatusResponse managementProjectMembers(
     @PathVariable UUID memberId,
-    @RequestBody UpdateMemberRequest request
+    @RequestBody ManagementProjectMembersRequest request
   ) {
-    return memberService.update(request);
+    projectMemberService.managementProjectMembers(
+      memberId,
+      request.getProjectIds(),
+      request.getInitialProjectIds()
+    );
+
+    return new StatusResponse("success");
+  }
+
+  /**
+   * Link a member with a user
+   *
+   * @param linkMemberRequest Member's e-mail and logged user ID
+   * @return "Success" message
+   */
+  @Operation(summary = "Link a member with a user")
+  @PostMapping("/link")
+  public StatusResponse linkMember(@RequestBody LinkMemberRequest linkMemberRequest) {
+    User member = userRepository
+      .findByEmail(linkMemberRequest.getEmail())
+      .orElseThrow(() -> new RuntimeException("Member not found!"));
+
+    User user = userRepository
+      .findById(linkMemberRequest.getUserId())
+      .orElseThrow(() -> new RuntimeException("User not found!"));
+
+    userMemberService.add(member, user);
+    return new StatusResponse("success");
+  }
+
+  /**
+   * Unlink a member from a user
+   *
+   * @param request Member ID and logged user ID
+   * @return "Success" message
+   */
+  @Operation(summary = "Unlink a member from a user")
+  @DeleteMapping("/unlink")
+  public StatusResponse unlinkMember(@RequestBody UnlinkMemberRequest request) {
+    userMemberService.unlink(request.getMemberId(), request.getUserId());
+    return new StatusResponse("success");
   }
 
   /**

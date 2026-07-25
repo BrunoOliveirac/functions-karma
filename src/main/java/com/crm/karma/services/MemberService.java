@@ -62,7 +62,7 @@ public class MemberService {
 
     // Check if the found member is already link to the user
     Optional<UserMember> userMember = userMemberService
-      .findByIdAndUserId(existingUser.get().getId(), request.getUserId());
+      .findByMemberIdAndUserId(existingUser.get().getId(), request.getUserId());
 
     if (userMember.isPresent()) return new StatusResponse("already-linked");
 
@@ -73,7 +73,7 @@ public class MemberService {
   }
 
   @Transactional
-  public UUID add(CreateMemberRequest request) {
+  public void add(CreateMemberRequest request) {
     // Get the logged user
     User user = userRepository
       .findById(request.getUserId())
@@ -94,10 +94,9 @@ public class MemberService {
     // Create user-member and project-member links
     userMemberService.add(createdMember, user);
     projectMemberService.saveAll(request.getProjectIds(), user, createdMember);
-    return createdMember.getId();
   }
 
-  public UUID update(UpdateMemberRequest request) {
+  public void update(UpdateMemberRequest request) {
     var existingUser = userRepository.findByEmailAndIdNot(request.getEmail(), request.getId());
 
     if (existingUser.isPresent()) {
@@ -108,7 +107,7 @@ public class MemberService {
     member.setName(request.getName());
     member.setEmail(request.getEmail().trim().toLowerCase());
 
-    return userService.save(member).getId();
+    userService.save(member);
   }
 
   public void updatePassword(UUID memberId, String password) {

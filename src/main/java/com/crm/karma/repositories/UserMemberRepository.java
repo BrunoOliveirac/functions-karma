@@ -34,5 +34,7 @@ public interface UserMemberRepository extends JpaRepository<@NonNull UserMember,
     Pageable pageable
   );
 
-  Optional<UserMember> findByIdAndUserId(UUID id, UUID userId);
+  Optional<UserMember> findByMemberIdAndUserId(UUID memberId, UUID userId);
+
+  Optional<UserMember> findFirstByMemberId(UUID memberId);
 }

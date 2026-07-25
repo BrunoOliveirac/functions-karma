@@ -44,16 +44,30 @@ public class UserMemberService {
   /**
    * Search a member to know his is already linked to the user or not
    *
-   * @param id     ID of the member
+   * @param memberId ID of the member
    * @param userId User ID creating the member
    * @return Return null or a member
    */
-  public Optional<UserMember> findByIdAndUserId(UUID id, UUID userId) {
-    return userMemberRepository.findByIdAndUserId(id, userId);
+  public Optional<UserMember> findByMemberIdAndUserId(UUID memberId, UUID userId) {
+    return userMemberRepository.findByMemberIdAndUserId(memberId, userId);
   }
 
   public UserMember add(User member, User user) {
     UserMember userMember = UserMember.builder().member(member).user(user).build();
     return userMemberRepository.save(userMember);
+  }
+
+  /**
+   * Unlink a member from a user
+   *
+   * @param memberId ID of the member
+   * @param userId   User ID
+   */
+  public void unlink(UUID memberId, UUID userId) {
+    UserMember userMember = userMemberRepository
+      .findByMemberIdAndUserId(memberId, userId)
+      .orElseThrow(() -> new RuntimeException("UserMember not found!"));
+
+    userMemberRepository.delete(userMember);
   }
 }
