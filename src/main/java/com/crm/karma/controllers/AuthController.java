@@ -6,7 +6,6 @@ import com.crm.karma.models.Credential;
 import com.crm.karma.models.User;
 import com.crm.karma.requests.LoginRequest;
 import com.crm.karma.requests.RegisterRequest;
-import com.crm.karma.responses.AuthResponse;
 import com.crm.karma.services.CredentialService;
 import com.crm.karma.services.JwtService;
 import com.crm.karma.services.PasswordService;
@@ -43,11 +42,11 @@ public class AuthController {
    * Authenticates the user in the system
    *
    * @param request The object with e-mail and password data
-   * @return Returns the user object, the token, and his expiration date when successful. Otherwise, returns UNAUTHORIZED when a user with e-mail provided is already exists
+   * @return Returns the token when successful. Otherwise, returns UNAUTHORIZED when a user with e-mail provided is already exists
    */
   @Operation(summary = "Login an user")
   @PostMapping("/login")
-  public AuthResponse login(@RequestBody LoginRequest request) {
+  public String login(@RequestBody LoginRequest request) {
     User user = userService.getByEmail(request.getEmail());
 
     if (user == null) {
@@ -70,24 +69,24 @@ public class AuthController {
       credential == null || !passwordService.matches(request.getPassword(), credential.getHash())
     ) {
       throw new ResponseStatusException(
-        HttpStatus.UNAUTHORIZED, 
+        HttpStatus.UNAUTHORIZED,
         "E-mail or password are incorrect!"
       );
     }
 
-    AuthResponse authResponse = jwtService.generateToken(request.getEmail(), List.of(user.getType()));
-    return new AuthResponse(authResponse.expirationDate, user, authResponse.token);
+    return jwtService.generateToken(request.getEmail(), List.of(user.getType()));
+
   }
 
   /**
    * Create a new user and sign in him
    *
    * @param request An object with name, email, and password attributes
-   * @return Returns the user object, the token, and his expiration date when successful. Otherwise, returns UNAUTHORIZED when a user with e-mail provided is already exists
+   * @return Returns the token when successful. Otherwise, returns UNAUTHORIZED when a user with e-mail provided is already exists
    */
   @Operation(summary = "Create a new user")
   @PostMapping("/register")
-  public AuthResponse register(@RequestBody RegisterRequest request) {
+  public String register(@RequestBody RegisterRequest request) {
     User existsUser = userService.getByEmail(request.getEmail());
 
     if (existsUser != null) {
@@ -104,7 +103,6 @@ public class AuthController {
     String hash = passwordService.hashPassword(request.getPassword());
     credentialService.add(hash, createdUser.getId());
 
-    AuthResponse authResponse = jwtService.generateToken(request.getEmail(), List.of(UserType.USER));
-    return new AuthResponse(authResponse.expirationDate, newUser, authResponse.token);
+    return jwtService.generateToken(request.getEmail(), List.of(UserType.USER));
   }
 }
