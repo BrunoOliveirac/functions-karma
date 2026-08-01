@@ -9,13 +9,16 @@ import com.crm.karma.requests.RegisterRequest;
 import com.crm.karma.services.CredentialService;
 import com.crm.karma.services.JwtService;
 import com.crm.karma.services.PasswordService;
+import com.crm.karma.services.TokenBlacklistService;
 import com.crm.karma.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -30,12 +33,20 @@ public class AuthController {
   private final UserService userService;
   private final PasswordService passwordService;
   private final CredentialService credentialService;
+  private final TokenBlacklistService tokenBlacklistService;
 
-  public AuthController(JwtService jwtService, UserService userService, PasswordService passwordService, CredentialService credentialService) {
+  public AuthController(
+    JwtService jwtService,
+    UserService userService,
+    PasswordService passwordService,
+    CredentialService credentialService,
+    TokenBlacklistService tokenBlacklistService
+  ) {
     this.jwtService = jwtService;
     this.userService = userService;
     this.passwordService = passwordService;
     this.credentialService = credentialService;
+    this.tokenBlacklistService = tokenBlacklistService;
   }
 
   /**
@@ -91,6 +102,29 @@ public class AuthController {
     userService.resetLoginAttempts(user);
 
     return jwtService.generateToken(request.getEmail(), List.of(user.getType()));
+  }
+
+  /**
+   * Invalidates the current JWT so it cannot be reused until its natural expiration.
+   * Idempotent: missing/invalid/expired tokens are ignored and still return NO_CONTENT.
+   *
+   * @param authHeader Authorization header with the Bearer token
+   */
+  @Operation(summary = "Logout and revoke the current token")
+  @PostMapping("/logout")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void logout(@RequestHeader(value = "Authorization", required = false) String authHeader) {
+    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+      return;
+    }
+
+    String token = authHeader.substring(7);
+
+    try {
+      tokenBlacklistService.revoke(token);
+    } catch (Exception ignored) {
+      // Token already expired or invalid — nothing left to revoke.
+    }
   }
 
   /**

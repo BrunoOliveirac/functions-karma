@@ -51,6 +51,10 @@ public class JwtService {
     return extractClaim(token, Claims::getSubject);
   }
 
+  public Date extractExpiration(String token) {
+    return extractClaim(token, Claims::getExpiration);
+  }
+
   public List<UserType> extractRoles(String token) {
     List<?> roles = extractClaim(token, claims -> claims.get("roles", List.class));
     return roles.stream().map(Object::toString).map(UserType::valueOf).toList();
