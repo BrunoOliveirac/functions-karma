@@ -39,43 +39,58 @@ public class AuthController {
   }
 
   /**
-   * Authenticates the user in the system
+   * Authenticates the user in the system.
+   * Allows up to {@link UserService#MAX_LOGIN_ATTEMPTS} consecutive failures;
+   * afterwards the account is locked for {@link UserService#LOGIN_LOCK_DURATION}.
    *
    * @param request The object with e-mail and password data
-   * @return Returns the token when successful. Otherwise, returns UNAUTHORIZED when a user with e-mail provided is already exists
+   * @return Returns the token when successful.
+   *         UNAUTHORIZED for invalid credentials;
+   *         TOO_MANY_REQUESTS when the account is locked.
    */
   @Operation(summary = "Login an user")
   @PostMapping("/login")
   public String login(@RequestBody LoginRequest request) {
     User user = userService.getByEmail(request.getEmail());
 
-    if (user == null) {
+    if (user == null || !Boolean.TRUE.equals(user.getActive())) {
       throw new ResponseStatusException(
         HttpStatus.UNAUTHORIZED,
         "E-mail or password are incorrect!"
       );
     }
 
-    if (!user.getActive()) {
+    if (userService.isLoginLocked(user)) {
       throw new ResponseStatusException(
-        HttpStatus.UNAUTHORIZED,
-        "E-mail or password are incorrect!"
+        HttpStatus.TOO_MANY_REQUESTS,
+        "Account temporarily locked due to too many failed login attempts!"
       );
     }
 
+    userService.clearExpiredLoginLock(user);
     Credential credential = credentialService.getByUserId(user.getId());
 
     if (
       credential == null || !passwordService.matches(request.getPassword(), credential.getHash())
     ) {
+      boolean locked = userService.registerFailedLogin(user);
+
+      if (locked) {
+        throw new ResponseStatusException(
+          HttpStatus.TOO_MANY_REQUESTS,
+          "Account temporarily locked due to too many failed login attempts!"
+        );
+      }
+
       throw new ResponseStatusException(
         HttpStatus.UNAUTHORIZED,
         "E-mail or password are incorrect!"
       );
     }
 
-    return jwtService.generateToken(request.getEmail(), List.of(user.getType()));
+    userService.resetLoginAttempts(user);
 
+    return jwtService.generateToken(request.getEmail(), List.of(user.getType()));
   }
 
   /**

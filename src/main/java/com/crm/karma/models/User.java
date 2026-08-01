@@ -4,6 +4,7 @@ import com.crm.karma.enums.UserType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -36,4 +37,13 @@ public class User extends Model {
   @Schema(description = "User's deletion date")
   @Column(name = "deleted_at")
   private Instant deletedAt;
+
+  @Schema(description = "Consecutive failed login attempts")
+  @Builder.Default
+  @Column(name = "failed_login_attempts", nullable = false)
+  private Integer failedLoginAttempts = 0;
+
+  @Schema(description = "Moment until which the account is locked after too many failed logins")
+  @Column(name = "locked_until")
+  private Instant lockedUntil;
 }
