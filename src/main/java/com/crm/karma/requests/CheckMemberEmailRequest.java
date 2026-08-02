@@ -1,5 +1,6 @@
 package com.crm.karma.requests;
 
+import com.crm.karma.validations.ValidEmail;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,6 +17,7 @@ public class CheckMemberEmailRequest {
   @Schema(description = "Member identifier to exclude when editing")
   private UUID userId;
 
+  @ValidEmail
   @Schema(description = "Member e-mail")
   private String email;
 }

@@ -10,6 +10,7 @@ import com.crm.karma.services.ProjectMemberService;
 import com.crm.karma.services.UserMemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -103,7 +104,7 @@ public class MemberController {
    */
   @Operation(summary = "Create a member user")
   @PostMapping("/create")
-  public void createMember(@RequestBody CreateMemberRequest request) {
+  public void createMember(@Valid @RequestBody CreateMemberRequest request) {
     memberService.add(request);
   }
 
@@ -116,7 +117,7 @@ public class MemberController {
   @PostMapping("/update/{memberId}")
   public void updateMember(
     @PathVariable UUID memberId,
-    @RequestBody UpdateMemberRequest request
+    @Valid @RequestBody UpdateMemberRequest request
   ) {
     memberService.update(request);
   }
@@ -150,7 +151,7 @@ public class MemberController {
    */
   @Operation(summary = "Link a member with a user")
   @PostMapping("/link")
-  public StatusResponse linkMember(@RequestBody LinkMemberRequest linkMemberRequest) {
+  public StatusResponse linkMember(@Valid @RequestBody LinkMemberRequest linkMemberRequest) {
     User member = userRepository
       .findByEmail(linkMemberRequest.getEmail())
       .orElseThrow(() -> new RuntimeException("Member not found!"));
@@ -184,7 +185,7 @@ public class MemberController {
    */
   @Operation(summary = "Verify the availability of an e-mail address")
   @PostMapping("/check-email")
-  public StatusResponse checkEmail(@RequestBody CheckMemberEmailRequest request) {
+  public StatusResponse checkEmail(@Valid @RequestBody CheckMemberEmailRequest request) {
     return memberService.checkEmail(request);
   }
 

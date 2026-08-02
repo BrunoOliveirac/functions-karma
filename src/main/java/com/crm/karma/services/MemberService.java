@@ -74,6 +74,16 @@ public class MemberService {
 
   @Transactional
   public void add(CreateMemberRequest request) {
+    StatusResponse statusResponse = checkEmail(
+      CheckMemberEmailRequest
+        .builder()
+        .userId(request.getUserId())
+        .email(request.getEmail())
+        .build()
+    );
+
+    if (!statusResponse.status().equals("available")) return;
+
     // Get the logged user
     User user = userRepository
       .findById(request.getUserId())

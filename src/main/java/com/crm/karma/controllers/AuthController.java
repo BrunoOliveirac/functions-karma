@@ -13,6 +13,7 @@ import com.crm.karma.services.TokenBlacklistService;
 import com.crm.karma.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -61,7 +62,7 @@ public class AuthController {
    */
   @Operation(summary = "Login an user")
   @PostMapping("/login")
-  public String login(@RequestBody LoginRequest request) {
+  public String login(@Valid @RequestBody LoginRequest request) {
     User user = userService.getByEmail(request.getEmail());
 
     if (user == null || !Boolean.TRUE.equals(user.getActive())) {
@@ -135,7 +136,7 @@ public class AuthController {
    */
   @Operation(summary = "Create a new user")
   @PostMapping("/register")
-  public String register(@RequestBody RegisterRequest request) {
+  public String register(@Valid @RequestBody RegisterRequest request) {
     User existsUser = userService.getByEmail(request.getEmail());
 
     if (existsUser != null) {

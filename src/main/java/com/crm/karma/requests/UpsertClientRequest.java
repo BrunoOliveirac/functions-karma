@@ -1,5 +1,6 @@
 package com.crm.karma.requests;
 
+import com.crm.karma.validations.ValidEmail;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -15,6 +16,7 @@ public class UpsertClientRequest {
   @Schema(description = "Client's name")
   private String name;
 
+  @ValidEmail
   @Schema(description = "Client's e-mail address")
   private String email;
 
