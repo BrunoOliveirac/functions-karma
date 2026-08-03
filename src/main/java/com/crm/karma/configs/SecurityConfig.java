@@ -24,7 +24,7 @@ public class SecurityConfig {
   public SecurityFilterChain securityFilterChain(
     HttpSecurity http,
     JwtAuthFilter jwtAuthFilter
-  ) throws Exception {
+  ) {
     http
       .csrf(AbstractHttpConfigurer::disable)
       .cors(Customizer.withDefaults())
@@ -33,7 +33,14 @@ public class SecurityConfig {
       )
       .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
       .authorizeHttpRequests(auth -> auth
-        .requestMatchers("/auth/**", "/swagger-ui/**", "/v3/api-docs/**")
+        // /error must be public: ResponseStatusException (and other MVC errors)
+        // are forwarded here; if secured, every error becomes 403 Forbidden.
+        .requestMatchers(
+          "/error",
+          "/auth/**",
+          "/swagger-ui/**",
+          "/v3/api-docs/**"
+        )
         .permitAll()
         .anyRequest()
         .authenticated()

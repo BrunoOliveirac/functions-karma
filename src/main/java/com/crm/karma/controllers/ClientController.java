@@ -7,6 +7,7 @@ import com.crm.karma.responses.StatusResponse;
 import com.crm.karma.services.ClientService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +17,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/clients")
-@PreAuthorize("hasRole('USER')")
+@PreAuthorize("hasAnyRole('USER', 'MEMBER')")
 @Tag(name = "Clients")
 public class ClientController {
 
@@ -58,7 +59,7 @@ public class ClientController {
    */
   @Operation(summary = "Create or edit a client")
   @PostMapping("/upsert")
-  public UUID upsertClient(@RequestBody UpsertClientRequest client) {
+  public UUID upsertClient(@Valid @RequestBody UpsertClientRequest client) {
     return clientService.save(client);
   }
 
@@ -79,7 +80,7 @@ public class ClientController {
   /**
    * Delete the client from the system
    *
-   * @param client Client to be deleted
+   * @param clientId Client ID to be deleted
    * @return OK status when deletion a client is successful
    */
   @Operation(summary = "Delete logically a specific client")
@@ -97,7 +98,7 @@ public class ClientController {
    */
   @Operation(summary = "Verify the availability of an e-mail address")
   @PostMapping("/check-email")
-  public Boolean checkEmail(@RequestBody CheckEmailRequest checkEmailRequest) {
+  public Boolean checkEmail(@Valid @RequestBody CheckEmailRequest checkEmailRequest) {
     return clientService.checkEmail(checkEmailRequest);
   }
 }

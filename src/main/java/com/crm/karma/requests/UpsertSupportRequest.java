@@ -1,5 +1,6 @@
 package com.crm.karma.requests;
 
+import com.crm.karma.validations.ValidEmail;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
@@ -13,6 +14,7 @@ public class UpsertSupportRequest {
   @Schema(description = "Support's name")
   private String name;
 
+  @ValidEmail
   @Schema(description = "Support's e-mail")
   private String email;
 

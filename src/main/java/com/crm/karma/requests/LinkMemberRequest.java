@@ -7,11 +7,11 @@ import lombok.Getter;
 import java.util.UUID;
 
 @Getter
-public class CheckEmailRequest {
-  @Schema(description = "User identifier")
-  private UUID userId;
-
+public class LinkMemberRequest {
   @ValidEmail
-  @Schema(description = "User's e-mail")
-  private String email;
+  @Schema(description = "Member's e-mail")
+  String email;
+
+  @Schema(description = "Logged user id")
+  UUID userId;
 }

@@ -8,6 +8,7 @@ import com.crm.karma.responses.StatusResponse;
 import com.crm.karma.services.SupportService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,7 +46,7 @@ public class SupportController {
    */
   @Operation(summary = "Create or edit a support user")
   @PostMapping("/upsert")
-  public UUID upsertSupport(@RequestBody UpsertSupportRequest request) {
+  public UUID upsertSupport(@Valid @RequestBody UpsertSupportRequest request) {
     return supportService.upsert(request);
   }
 
@@ -57,7 +58,7 @@ public class SupportController {
    */
   @Operation(summary = "Verify the availability of an e-mail address")
   @PostMapping("/check-email")
-  public Boolean checkEmail(@RequestBody CheckSupportEmailRequest request) {
+  public Boolean checkEmail(@Valid @RequestBody CheckSupportEmailRequest request) {
     return supportService.checkEmail(request);
   }
 
