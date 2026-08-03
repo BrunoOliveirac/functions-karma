@@ -11,7 +11,7 @@ import java.util.Optional;
 @Service
 public class UserService {
   public static final int MAX_LOGIN_ATTEMPTS = 5;
-  public static final Duration LOGIN_LOCK_DURATION = Duration.ofMinutes(1);
+  public static final Duration LOGIN_LOCK_DURATION = Duration.ofMinutes(5);
 
   private final UserRepository userRepository;
 
