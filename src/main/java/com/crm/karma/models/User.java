@@ -29,6 +29,10 @@ public class User extends Model {
   @Column(nullable = false, unique = true)
   private String email;
 
+  @Schema(description = "User's avatar as a data URL")
+  @Column(columnDefinition = "TEXT")
+  private String avatar;
+
   @Schema(description = "User's type")
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)

@@ -10,6 +10,12 @@ public record ProfileResponse(
   UUID id,
   String name,
   String email,
-  UserType type
+  String avatar,
+  UserType type,
+  @Schema(
+    description = "Fresh JWT when e-mail or password changed; null otherwise. "
+      + "Clients must replace the previous session token with this value."
+  )
+  String token
 ) {
 }
