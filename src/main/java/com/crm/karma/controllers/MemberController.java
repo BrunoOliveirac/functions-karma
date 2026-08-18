@@ -6,6 +6,7 @@ import com.crm.karma.requests.*;
 import com.crm.karma.responses.PaginatedResponse;
 import com.crm.karma.responses.StatusResponse;
 import com.crm.karma.services.MemberService;
+import com.crm.karma.services.NotificationService;
 import com.crm.karma.services.ProjectMemberService;
 import com.crm.karma.services.UserMemberService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,17 +31,20 @@ public class MemberController {
 
   private final MemberService memberService;
   private final UserMemberService userMemberService;
+  private final NotificationService notificationService;
   private final ProjectMemberService projectMemberService;
 
   public MemberController(
     MemberService memberService,
     UserRepository userRepository,
     UserMemberService userMemberService,
+    NotificationService notificationService,
     ProjectMemberService projectMemberService
   ) {
     this.memberService = memberService;
     this.userRepository = userRepository;
     this.userMemberService = userMemberService;
+    this.notificationService = notificationService;
     this.projectMemberService = projectMemberService;
   }
 
@@ -58,7 +62,7 @@ public class MemberController {
   /**
    * Get all linked members to the logged user with pagination
    *
-   * @param userId Logged user ID
+   * @param userId                Logged user ID
    * @param paginatedQueryRequest Object with page and query
    * @return An object with totalPages and the members
    */
@@ -109,20 +113,6 @@ public class MemberController {
   }
 
   /**
-   * Update a member user
-   *
-   * @param request The member data to be updated
-   */
-  @Operation(summary = "Update a member user")
-  @PostMapping("/update/{memberId}")
-  public void updateMember(
-    @PathVariable UUID memberId,
-    @Valid @RequestBody UpdateMemberRequest request
-  ) {
-    memberService.update(request);
-  }
-
-  /**
    * Create or update a member user
    *
    * @param request The member data to be created or updated
@@ -161,6 +151,16 @@ public class MemberController {
       .orElseThrow(() -> new RuntimeException("User not found!"));
 
     userMemberService.add(member, user);
+
+    notificationService.add(
+      "linked_by_user",
+      "user",
+      user,
+      member,
+      user.getId(),
+      user.getName()
+    );
+
     return new StatusResponse("success");
   }
 
