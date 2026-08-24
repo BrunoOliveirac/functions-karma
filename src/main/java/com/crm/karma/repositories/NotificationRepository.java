@@ -12,8 +12,12 @@ import java.util.UUID;
 @Repository
 public interface NotificationRepository extends JpaRepository<@NonNull Notification, @NonNull UUID> {
 
-  List<Notification> findTop5ByUserIdAndDeletedAtIsNullOrderByCreatedAtDesc(
+  List<Notification> findByUserId(UUID userId);
+
+  List<Notification> findByUserIdAndDeletedAtIsNullOrderByCreatedAtDesc(
     UUID userId,
     Pageable pageable
   );
+
+  boolean existsByUserIdAndDeletedAtIsNullAndReadIsFalse(UUID userId);
 }

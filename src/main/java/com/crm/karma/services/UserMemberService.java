@@ -43,7 +43,7 @@ public class UserMemberService {
     Pageable pageable
   ) {
     return userMemberRepository
-      .findDistinctMemberByUserIdContainingIgnoreCase(
+      .searchDistinctMemberByUserIdContainingIgnoreCase(
         query,
         userId,
         pageable
