@@ -32,13 +32,13 @@ public class NotificationSseHub {
     emitters.computeIfAbsent(userId, id -> new CopyOnWriteArrayList<>()).add(emitter);
 
     emitter.onCompletion(() -> remove(userId, emitter));
-    emitter.onTimeout(() -> remove(userId, emitter));
+    emitter.onTimeout(() -> completeAndRemove(userId, emitter));
     emitter.onError(error -> remove(userId, emitter));
 
     try {
       emitter.send(SseEmitter.event().comment("connected"));
     } catch (IOException e) {
-      remove(userId, emitter);
+      completeAndRemove(userId, emitter);
     }
 
     return emitter;
@@ -61,6 +61,7 @@ public class NotificationSseHub {
           }
         }
       );
+
       return;
     }
 
@@ -77,7 +78,7 @@ public class NotificationSseHub {
       try {
         emitter.send(SseEmitter.event().data(CREATED_EVENT));
       } catch (IOException e) {
-        remove(userId, emitter);
+        completeAndRemove(userId, emitter);
       }
     }
   }
@@ -92,10 +93,19 @@ public class NotificationSseHub {
         try {
           emitter.send(SseEmitter.event().comment("keepalive"));
         } catch (IOException e) {
-          remove(userId, emitter);
+          completeAndRemove(userId, emitter);
         }
       }
     });
+  }
+
+  private void completeAndRemove(UUID userId, SseEmitter emitter) {
+    try {
+      remove(userId, emitter);
+      emitter.complete();
+    } catch (Exception ignored) {
+      // Already completed or the client already dropped the connection.
+    }
   }
 
   private void remove(UUID userId, SseEmitter emitter) {

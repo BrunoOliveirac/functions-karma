@@ -2,6 +2,7 @@ package com.crm.karma.controllers;
 
 import com.crm.karma.models.User;
 import com.crm.karma.responses.LatestNotificationsResponse;
+import com.crm.karma.responses.NotificationListResponse;
 import com.crm.karma.responses.StatusResponse;
 import com.crm.karma.services.NotificationService;
 import com.crm.karma.services.NotificationSseHub;
@@ -49,6 +50,26 @@ public class NotificationController {
   @GetMapping("latest/{userId}")
   public LatestNotificationsResponse listLatestNotifications(@PathVariable UUID userId) {
     return notificationService.listLatest(userId);
+  }
+
+  /**
+   * List notifications of the logged user with pagination, search and status.
+   *
+   * @param userId Logged user ID
+   * @param page 1-based page number
+   * @param query Search term applied to referenceLabel and actor name
+   * @param status Tab filter: all, unread or read
+   * @return Paginated notifications plus tab counts
+   */
+  @Operation(summary = "List paginated notifications of a user")
+  @GetMapping("list/{userId}")
+  public NotificationListResponse listNotifications(
+    @PathVariable UUID userId,
+    @RequestParam(defaultValue = "1") int page,
+    @RequestParam(defaultValue = "") String query,
+    @RequestParam(defaultValue = "all") String status
+  ) {
+    return notificationService.list(userId, page, query, status);
   }
 
   /**

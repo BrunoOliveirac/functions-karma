@@ -4,7 +4,12 @@ import com.crm.karma.models.Notification;
 import com.crm.karma.models.User;
 import com.crm.karma.repositories.NotificationRepository;
 import com.crm.karma.responses.LatestNotificationsResponse;
+import com.crm.karma.responses.NotificationCounts;
+import com.crm.karma.responses.NotificationListResponse;
+import lombok.NonNull;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -43,6 +48,36 @@ public class NotificationService {
     );
 
     return new LatestNotificationsResponse(latest, hasUnreadNotifications);
+  }
+
+  public NotificationListResponse list(UUID userId, int page, String query, String status) {
+    int safePage = Math.max(page, 1);
+    String normalizedQuery = query == null ? "" : query.trim();
+    String normalizedStatus = normalizeStatus(status);
+
+    Page<@NonNull Notification> result = notificationRepository.searchByUserId(
+      userId,
+      normalizedQuery,
+      normalizedStatus,
+      PageRequest.of(safePage - 1, 10, Sort.by(Sort.Direction.DESC, "createdAt"))
+    );
+
+    NotificationCounts counts = notificationRepository.countByUserIdAndQuery(userId, normalizedQuery);
+
+    if (counts == null) {
+      counts = new NotificationCounts(0, 0, 0);
+    }
+
+    return new NotificationListResponse(result.getContent(), result.hasNext(), counts);
+  }
+
+  private String normalizeStatus(String status) {
+    if (status == null) return "all";
+
+    return switch (status.toLowerCase()) {
+      case "unread", "read" -> status.toLowerCase();
+      default -> "all";
+    };
   }
 
   public void add(
