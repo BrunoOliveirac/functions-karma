@@ -1,6 +1,7 @@
 package com.crm.karma.configs;
 
 import com.crm.karma.filters.JwtAuthFilter;
+import jakarta.servlet.DispatcherType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -33,6 +34,12 @@ public class SecurityConfig {
       )
       .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
       .authorizeHttpRequests(auth -> auth
+        // SSE/async timeout and error dispatches reuse the original URI
+        // (/notifications/stream) without a SecurityContext: the JWT filter
+        // skips async dispatches and this API is stateless. Denying them
+        // leaves the async connection open and starves the browser.
+        .dispatcherTypeMatchers(DispatcherType.ASYNC, DispatcherType.ERROR)
+        .permitAll()
         // /error must be public: ResponseStatusException (and other MVC errors)
         // are forwarded here; if secured, every error becomes 403 Forbidden.
         .requestMatchers(

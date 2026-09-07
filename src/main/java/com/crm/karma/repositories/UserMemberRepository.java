@@ -28,7 +28,7 @@ public interface UserMemberRepository extends JpaRepository<@NonNull UserMember,
       "AND slugify(member.name) LIKE slugify(CONCAT('%', :name, '%'))",
     nativeQuery = true
   )
-  Page<@NonNull User> findDistinctMemberByUserIdContainingIgnoreCase(
+  Page<@NonNull User> searchDistinctMemberByUserIdContainingIgnoreCase(
     @Param("name") String name,
     @Param("userId") UUID userId,
     Pageable pageable

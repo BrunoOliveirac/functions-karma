@@ -1,10 +1,7 @@
 package com.crm.karma.services;
 
 import com.crm.karma.enums.UserType;
-import com.crm.karma.models.Project;
-import com.crm.karma.models.ProjectMember;
-import com.crm.karma.models.User;
-import com.crm.karma.models.UserMember;
+import com.crm.karma.models.*;
 import com.crm.karma.repositories.ProjectMemberRepository;
 import com.crm.karma.repositories.ProjectRepository;
 import com.crm.karma.repositories.UserMemberRepository;
@@ -21,17 +18,20 @@ public class ProjectMemberService {
 
   private final UserRepository userRepository;
   private final ProjectRepository projectRepository;
+  private final NotificationService notificationService;
   private final UserMemberRepository userMemberRepository;
   private final ProjectMemberRepository projectMemberRepository;
 
   public ProjectMemberService(
     UserRepository userRepository,
     ProjectRepository projectRepository,
+    NotificationService notificationService,
     UserMemberRepository userMemberRepository,
     ProjectMemberRepository projectMemberRepository
   ) {
     this.userRepository = userRepository;
     this.projectRepository = projectRepository;
+    this.notificationService = notificationService;
     this.userMemberRepository = userMemberRepository;
     this.projectMemberRepository = projectMemberRepository;
   }
@@ -40,11 +40,13 @@ public class ProjectMemberService {
     return projectMemberRepository.findByMemberId(memberId);
   }
 
+  @Transactional
   public void saveAll(List<UUID> projectIds, User user, User member) {
     if (projectIds.isEmpty()) return;
 
     List<Project> projects = projectRepository.findAllById(projectIds);
     List<ProjectMember> projectMembers = new ArrayList<>();
+    List<Notification> notifications = new ArrayList<>();
 
     for (Project project : projects) {
       projectMembers.add(
@@ -55,8 +57,21 @@ public class ProjectMemberService {
           .project(project)
           .build()
       );
+
+      notifications.add(
+        Notification
+          .builder()
+          .code("linked_to_project")
+          .type("project")
+          .referenceLabel(project.getName())
+          .referenceId(project.getId())
+          .actor(user)
+          .user(member)
+          .build()
+      );
     }
 
+    notificationService.saveAll(notifications);
     projectMemberRepository.saveAll(projectMembers);
   }
 
