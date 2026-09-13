@@ -1,4 +1,4 @@
-CREATE TABLE notifications (
+CREATE TABLE IF NOT EXISTS notifications (
     id UUID PRIMARY KEY,
     code VARCHAR(255) NOT NULL,
     type VARCHAR(255) NOT NULL,
@@ -22,9 +22,9 @@ CREATE TABLE notifications (
 );
 
 -- Supports findAllByUserIdAndDeletedAtIsNullOrderByCreatedAtDesc
-CREATE INDEX idx_notifications_user_created_at
+CREATE INDEX IF NOT EXISTS idx_notifications_user_created_at
 ON notifications (user_id, created_at DESC)
 WHERE deleted_at IS NULL;
 
-CREATE INDEX idx_notifications_actor_id
+CREATE INDEX IF NOT EXISTS idx_notifications_actor_id
 ON notifications (actor_id);

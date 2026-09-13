@@ -1,4 +1,4 @@
-CREATE TABLE user_members (
+CREATE TABLE IF NOT EXISTS user_members (
     id UUID PRIMARY KEY,
     user_id UUID NOT NULL,
     member_id UUID NOT NULL,

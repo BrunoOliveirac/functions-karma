@@ -13,5 +13,5 @@ END;
 $$ LANGUAGE plpgsql IMMUTABLE;
 
 -- Create users name index for accent-insensitive search
-CREATE INDEX idx_users_name_slugify
+CREATE INDEX IF NOT EXISTS idx_users_name_slugify
 ON users USING gin (slugify(name) gin_trgm_ops);
