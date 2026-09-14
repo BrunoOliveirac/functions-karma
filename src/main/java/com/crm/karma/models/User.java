@@ -35,7 +35,7 @@ public class User extends Model {
 
   @Schema(description = "User's type")
   @Enumerated(EnumType.STRING)
-  @Column(nullable = false)
+  @Column(nullable = false, length = 50)
   private UserType type;
 
   @Schema(description = "User's deletion date")

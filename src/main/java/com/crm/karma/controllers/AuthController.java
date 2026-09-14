@@ -13,6 +13,7 @@ import com.crm.karma.services.TokenBlacklistService;
 import com.crm.karma.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -134,6 +135,7 @@ public class AuthController {
    * @param request An object with name, email, and password attributes
    * @return Returns the token when successful. Otherwise, returns UNAUTHORIZED when a user with e-mail provided is already exists
    */
+  @Transactional
   @Operation(summary = "Create a new user")
   @PostMapping("/register")
   public String register(@Valid @RequestBody RegisterRequest request) {

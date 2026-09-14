@@ -4,5 +4,9 @@ CREATE TABLE IF NOT EXISTS sectors (
     user_id UUID NOT NULL,
     active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    updated_at TIMESTAMP WITH TIME ZONE
+    updated_at TIMESTAMP WITH TIME ZONE,
+    deleted_at TIMESTAMP WITH TIME ZONE,
+    CONSTRAINT fk_sectors_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
 );

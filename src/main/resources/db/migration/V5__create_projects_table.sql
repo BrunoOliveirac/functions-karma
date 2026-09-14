@@ -6,7 +6,10 @@ CREATE TABLE IF NOT EXISTS projects (
     active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE,
-    deleted_at TIMESTAMP NULL,
+    deleted_at TIMESTAMP WITH TIME ZONE NULL,
+    CONSTRAINT fk_projects_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id),
     CONSTRAINT fk_project_client
         FOREIGN KEY (client_id)
         REFERENCES clients(id)

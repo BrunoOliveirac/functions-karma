@@ -11,7 +11,9 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
-@Table(name = "project_members")
+@Table(name = "project_members", uniqueConstraints = {
+  @UniqueConstraint(name = "unique_project_member", columnNames = {"user_id", "member_id", "project_id"})
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -20,20 +22,20 @@ import org.hibernate.annotations.OnDeleteAction;
 public class ProjectMember extends Model {
 
   @Schema(description = "User member ")
-  @ManyToOne(fetch = FetchType.LAZY, optional = true)
-  @JoinColumn(name = "user_id")
-  @OnDelete(action = OnDeleteAction.SET_NULL)
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "user_id", nullable = false)
+  @OnDelete(action = OnDeleteAction.CASCADE)
   private User user;
 
   @Schema(description = "Project to be linked")
-  @ManyToOne(fetch = FetchType.LAZY, optional = true)
-  @JoinColumn(name = "project_id")
-  @OnDelete(action = OnDeleteAction.SET_NULL)
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "project_id", nullable = false)
+  @OnDelete(action = OnDeleteAction.CASCADE)
   private Project project;
 
   @Schema(description = "member linked to the user")
-  @ManyToOne(fetch = FetchType.LAZY, optional = true)
-  @JoinColumn(name = "member_id")
-  @OnDelete(action = OnDeleteAction.SET_NULL)
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "member_id", nullable = false)
+  @OnDelete(action = OnDeleteAction.CASCADE)
   private User member;
 }

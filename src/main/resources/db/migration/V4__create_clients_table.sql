@@ -11,9 +11,16 @@ CREATE TABLE IF NOT EXISTS clients (
     active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE,
-    deleted_at TIMESTAMP NULL
+    deleted_at TIMESTAMP WITH TIME ZONE NULL,
+    CONSTRAINT fk_clients_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id),
+    CONSTRAINT fk_client_sector
+        FOREIGN KEY (sector_id)
+        REFERENCES sectors(id)
+        ON DELETE SET NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_clients_user_email_active
+CREATE UNIQUE INDEX IF NOT EXISTS idx_clients_user_email_active
 ON clients (user_id, email)
 WHERE deleted_at IS NULL;
