@@ -26,7 +26,11 @@ public interface TicketRepository extends JpaRepository<@NonNull Ticket, @NonNul
         t.status,
         t.code,
         t.user.id,
+        t.user.name,
+        t.user.avatar,
         s.id,
+        s.name,
+        s.avatar,
         t.active,
         t.createdAt,
         t.updatedAt

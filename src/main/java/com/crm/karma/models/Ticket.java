@@ -35,6 +35,10 @@ public class Ticket extends Model {
   @Column(name = "accepted_at")
   private Instant acceptedAt;
 
+  @Schema(description = "Support acceptance date")
+  @Column(name = "finished_at")
+  private Instant finishedAt;
+
   @Schema(description = "Ticket's status")
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 50)

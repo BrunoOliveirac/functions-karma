@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS tickets (
     title VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
     accepted_at TIMESTAMP WITH TIME ZONE,
+    finished_at TIMESTAMP WITH TIME ZONE,
     status VARCHAR(50) NOT NULL,
     code BIGINT NOT NULL DEFAULT nextval('ticket_code_seq'),
     user_id UUID NOT NULL,

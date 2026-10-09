@@ -20,8 +20,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Set;
 import java.util.UUID;
@@ -67,10 +69,17 @@ public class TicketService {
     String query = request.query() == null ? "" : request.query().trim();
     Long code = codeQuery(query);
     Scope scope = scope(request.userId(), request.supportId(), request.status());
-    Instant startDate = request.startDate() == null ? Instant.EPOCH : startOfDay(request.startDate());
-    Instant endDate = request.endDate() == null
-      ? Instant.EPOCH
-      : startOfDay(request.endDate().plusDays(1));
+    ZoneId zone = zone(request.timeZone());
+    LocalDate from = request.startDate();
+    LocalDate to = request.endDate();
+    if (from != null && to != null && to.isBefore(from)) {
+      LocalDate swap = from;
+      from = to;
+      to = swap;
+    }
+
+    Instant startDate = from == null ? Instant.EPOCH : startOfDay(from, zone);
+    Instant endDate = to == null ? Instant.EPOCH : startOfDay(to.plusDays(1), zone);
 
     Page<@NonNull TicketResponse> result = ticketRepository.search(
       scope.userId() == null ? 0 : 1,
@@ -82,9 +91,9 @@ public class TicketService {
       query,
       code == null ? 0 : 1,
       code == null ? 0L : code,
-      request.startDate() == null ? 0 : 1,
+      from == null ? 0 : 1,
       startDate,
-      request.endDate() == null ? 0 : 1,
+      to == null ? 0 : 1,
       endDate,
       PageRequest.of(page - 1, request.pageSize())
     );
@@ -207,8 +216,22 @@ public class TicketService {
     }
   }
 
-  private static Instant startOfDay(LocalDate date) {
-    return date.atStartOfDay(ZoneOffset.UTC).toInstant();
+  /**
+   * Calendar dates are inclusive. The query uses the start of the next day as an exclusive bound.
+   * A missing zone stays on UTC so older clients keep the previous behavior.
+   */
+  private static ZoneId zone(String timeZone) {
+    if (timeZone == null || timeZone.isBlank()) return ZoneOffset.UTC;
+
+    try {
+      return ZoneId.of(timeZone.trim());
+    } catch (DateTimeException exception) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid time zone");
+    }
+  }
+
+  private static Instant startOfDay(LocalDate date, ZoneId zone) {
+    return date.atStartOfDay(zone).toInstant();
   }
 
   private record Scope(UUID userId, UUID supportId, TicketStatus status) {

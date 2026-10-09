@@ -15,10 +15,12 @@ public record ListTicketsQueryRequest(
   String query,
   @Schema(description = "Optional status filter")
   TicketStatus status,
-  @Schema(description = "Optional creation date start, inclusive (yyyy-MM-dd, UTC)")
+  @Schema(description = "Optional creation date start, inclusive (yyyy-MM-dd)")
   LocalDate startDate,
-  @Schema(description = "Optional creation date end, inclusive (yyyy-MM-dd, UTC)")
+  @Schema(description = "Optional creation date end, inclusive (yyyy-MM-dd)")
   LocalDate endDate,
+  @Schema(description = "IANA time zone used to resolve the calendar dates. Blank means UTC")
+  String timeZone,
   @Schema(description = "Owner user id. Users and members pass their own id")
   UUID userId,
   @Schema(description = "Support id. Support passes their own id")
