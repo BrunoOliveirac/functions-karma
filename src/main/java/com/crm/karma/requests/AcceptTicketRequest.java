@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public record AcceptTicketRequest(
   @Schema(description = "Ticket identifier")
-  UUID id,
+  UUID ticketId,
   @Schema(description = "Support identifier")
   UUID supportId
 ) {

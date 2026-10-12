@@ -1,5 +1,6 @@
 package com.crm.karma.controllers;
 
+import com.crm.karma.enums.TicketStatus;
 import com.crm.karma.models.User;
 import com.crm.karma.requests.AcceptTicketRequest;
 import com.crm.karma.requests.AddTicketRequest;
@@ -125,6 +126,32 @@ public class TicketController {
   @PreAuthorize("hasAnyRole('SUPPORT')")
   public StatusResponse accept(@RequestBody AcceptTicketRequest acceptTicketRequest) {
     ticketService.acceptTicket(acceptTicketRequest);
+    return new StatusResponse("success");
+  }
+
+  /**
+   * * User, member, or support resolves the ticket
+   *
+   * @param ticketId Ticket ID
+   */
+  @Operation(summary = "Resolve a user/member ticket")
+  @PostMapping("/resolve/{ticketId}")
+  @PreAuthorize("hasAnyRole('USER', 'MEMBER', 'SUPPORT')")
+  public StatusResponse resolve(@PathVariable UUID ticketId) {
+    ticketService.finalizeTicket(ticketId, TicketStatus.RESOLVED);
+    return new StatusResponse("success");
+  }
+
+  /**
+   * User, member, or support cancels the ticket
+   *
+   * @param ticketId Ticket ID
+   */
+  @Operation(summary = "Cancel a user/member ticket")
+  @PostMapping("/cancel/{ticketId}")
+  @PreAuthorize("hasAnyRole('USER', 'MEMBER', 'SUPPORT')")
+  public StatusResponse cancel(@PathVariable UUID ticketId) {
+    ticketService.finalizeTicket(ticketId, TicketStatus.CANCELLED);
     return new StatusResponse("success");
   }
 }

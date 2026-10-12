@@ -20,11 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.DateTimeException;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.util.Set;
 import java.util.UUID;
 
@@ -46,6 +42,39 @@ public class TicketService {
     this.ticketSseHub = ticketSseHub;
     this.userRepository = userRepository;
     this.ticketRepository = ticketRepository;
+  }
+
+  /**
+   * A search made of digits, optionally prefixed with #, is also the sequential code.
+   * Leading zeros match the padded value shown in the panel, so 08 finds code 8.
+   */
+  private static Long codeQuery(String query) {
+    String value = query.startsWith("#") ? query.substring(1).trim() : query;
+    if (!value.matches("\\d+")) return null;
+
+    try {
+      return Long.valueOf(value);
+    } catch (NumberFormatException exception) {
+      return null;
+    }
+  }
+
+  /**
+   * Calendar dates are inclusive. The query uses the start of the next day as an exclusive bound.
+   * A missing zone stays on UTC so older clients keep the previous behavior.
+   */
+  private static ZoneId zone(String timeZone) {
+    if (timeZone == null || timeZone.isBlank()) return ZoneOffset.UTC;
+
+    try {
+      return ZoneId.of(timeZone.trim());
+    } catch (DateTimeException exception) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid time zone");
+    }
+  }
+
+  private static Instant startOfDay(LocalDate date, ZoneId zone) {
+    return date.atStartOfDay(zone).toInstant();
   }
 
   /**
@@ -143,7 +172,7 @@ public class TicketService {
   }
 
   public void acceptTicket(AcceptTicketRequest acceptTicketRequest) {
-    Ticket ticket = ticketRepository.findById(acceptTicketRequest.id())
+    Ticket ticket = ticketRepository.findById(acceptTicketRequest.ticketId())
       .orElseThrow(() -> new RuntimeException("Ticket not found!"));
 
     User support = userRepository.findById(acceptTicketRequest.supportId())
@@ -153,6 +182,21 @@ public class TicketService {
     ticket.setSupport(support);
     ticket.setAcceptedAt(Instant.now());
     ticket.setStatus(TicketStatus.IN_PROGRESS);
+
+    ticketRepository.save(ticket);
+    publish(ticket, previousStatus);
+  }
+
+  public void finalizeTicket(
+    UUID ticketId,
+    TicketStatus status
+  ) {
+    Ticket ticket = ticketRepository.findById(ticketId)
+      .orElseThrow(() -> new RuntimeException("Ticket not found!"));
+
+    TicketStatus previousStatus = ticket.getStatus();
+    ticket.setFinishedAt(Instant.now());
+    ticket.setStatus(status);
 
     ticketRepository.save(ticket);
     publish(ticket, previousStatus);
@@ -199,39 +243,6 @@ public class TicketService {
     if (ticket.getSupport() != null && !ticket.getSupport().getId().equals(ownerId)) {
       ticketSseHub.publish(ticket.getSupport().getId(), event);
     }
-  }
-
-  /**
-   * A search made of digits, optionally prefixed with #, is also the sequential code.
-   * Leading zeros match the padded value shown in the panel, so 08 finds code 8.
-   */
-  private static Long codeQuery(String query) {
-    String value = query.startsWith("#") ? query.substring(1).trim() : query;
-    if (!value.matches("\\d+")) return null;
-
-    try {
-      return Long.valueOf(value);
-    } catch (NumberFormatException exception) {
-      return null;
-    }
-  }
-
-  /**
-   * Calendar dates are inclusive. The query uses the start of the next day as an exclusive bound.
-   * A missing zone stays on UTC so older clients keep the previous behavior.
-   */
-  private static ZoneId zone(String timeZone) {
-    if (timeZone == null || timeZone.isBlank()) return ZoneOffset.UTC;
-
-    try {
-      return ZoneId.of(timeZone.trim());
-    } catch (DateTimeException exception) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid time zone");
-    }
-  }
-
-  private static Instant startOfDay(LocalDate date, ZoneId zone) {
-    return date.atStartOfDay(zone).toInstant();
   }
 
   private record Scope(UUID userId, UUID supportId, TicketStatus status) {
