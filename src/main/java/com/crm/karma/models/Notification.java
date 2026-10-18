@@ -26,7 +26,7 @@ public class Notification extends Model {
   @Column(nullable = false)
   private String code;
 
-  @Schema(description = "Notification's type/origin (project, system, user")
+  @Schema(description = "Notification's type/origin (project, system, user)")
   @Column(nullable = false)
   private String type;
 
@@ -34,7 +34,7 @@ public class Notification extends Model {
   @Column(name = "reference_id")
   private UUID referenceId;
 
-  @Schema(description = "Document's Label (name/content")
+  @Schema(description = "Document's label (name/content)")
   @Column(name = "reference_label")
   private String referenceLabel;
 
@@ -53,7 +53,7 @@ public class Notification extends Model {
   @OnDelete(action = OnDeleteAction.CASCADE)
   private User user;
 
-  @Schema(description = "User of the member is linked")
+  @Schema(description = "User who triggered the notification")
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "actor_id")
   @OnDelete(action = OnDeleteAction.SET_NULL)

@@ -115,7 +115,7 @@ public class NotificationController {
    * @param userId Logged user's ID
    * @return Success status
    */
-  @Operation(summary = "Mark a notification as read")
+  @Operation(summary = "Mark all notifications as read")
   @PatchMapping("mark-all-as-read/{userId}")
   public StatusResponse markAllNotificationAsRead(@PathVariable UUID userId) {
     notificationService.markAllNotificationAsRead(userId);
