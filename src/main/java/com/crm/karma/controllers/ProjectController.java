@@ -1,6 +1,7 @@
 package com.crm.karma.controllers;
 
 import com.crm.karma.models.Project;
+import com.crm.karma.requests.GetByIdsRequest;
 import com.crm.karma.requests.UpsertProjectRequest;
 import com.crm.karma.responses.StatusResponse;
 import com.crm.karma.services.ProjectService;
@@ -59,6 +60,12 @@ public class ProjectController {
   @GetMapping("/{projectId}")
   public Optional<Project> getProject(@PathVariable UUID projectId) {
     return projectService.getById(projectId);
+  }
+
+  @Operation(summary = "List specific projects")
+@PostMapping("/list-by-ids")
+  public List<Project> listByIds(@RequestBody GetByIdsRequest getByIdsRequest){
+    return projectService.getByIds(getByIdsRequest.getIds());
   }
 
   /**

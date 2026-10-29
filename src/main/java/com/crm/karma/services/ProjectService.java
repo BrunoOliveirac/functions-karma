@@ -30,6 +30,10 @@ public class ProjectService {
     return projectRepository.findAllByUserIdAndActiveTrueAndDeletedAtIsNullOrderByNameAsc(userId);
   }
 
+  public List<Project> getByIds(List<UUID> projectIds){
+    return projectRepository.findAllById(projectIds);
+  }
+
   public Optional<Project> getById(UUID projectId) {
     return projectRepository.findById(projectId);
   }
