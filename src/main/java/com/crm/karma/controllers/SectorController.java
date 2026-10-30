@@ -1,6 +1,7 @@
 package com.crm.karma.controllers;
 
 import com.crm.karma.models.Sector;
+import com.crm.karma.requests.GetByIdsRequest;
 import com.crm.karma.responses.StatusResponse;
 import com.crm.karma.services.SectorService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -61,6 +62,19 @@ public class SectorController {
   }
 
   /**
+   * Get specific projects
+   *
+   * @param getByIdsRequest ID list
+   * @return List of found projects
+   */
+  @Operation(summary = "List specific projects")
+  @PostMapping("/list-by-ids")
+  public List<Sector> listByIds(@RequestBody GetByIdsRequest getByIdsRequest) {
+    return sectorService.getByIds(getByIdsRequest.getIds());
+  }
+
+
+  /**
    * Create or Update a sector, based on UUID type of ID attribute
    *
    * @param sector The sector to be created or updated
@@ -75,7 +89,7 @@ public class SectorController {
   /**
    * Delete the sector from the queries, adding deleted_at
    *
-   * @param sector Sector to be deleted
+   * @param sectorId Sector ID to be deleted
    * @return OK status when deletion a sector is successful
    */
   @Operation(summary = "Delete logically a specific sector")

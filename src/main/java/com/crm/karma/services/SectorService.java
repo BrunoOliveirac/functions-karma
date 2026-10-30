@@ -26,6 +26,10 @@ public class SectorService {
     return sectorRepository.findAllByUserIdAndActiveTrueAndDeletedAtIsNullOrderByNameAsc(userId);
   }
 
+  public List<Sector> getByIds(List<UUID> sectorIds) {
+    return sectorRepository.findAllById(sectorIds);
+  }
+
   public Optional<Sector> getById(UUID sectorId) {
     return sectorRepository.findById(sectorId);
   }

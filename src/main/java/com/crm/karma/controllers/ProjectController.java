@@ -62,9 +62,14 @@ public class ProjectController {
     return projectService.getById(projectId);
   }
 
+  /**
+   * Get specific projects
+   * @param getByIdsRequest ID list
+   * @return List of found projects
+   */
   @Operation(summary = "List specific projects")
-@PostMapping("/list-by-ids")
-  public List<Project> listByIds(@RequestBody GetByIdsRequest getByIdsRequest){
+  @PostMapping("/list-by-ids")
+  public List<Project> listByIds(@RequestBody GetByIdsRequest getByIdsRequest) {
     return projectService.getByIds(getByIdsRequest.getIds());
   }
 
