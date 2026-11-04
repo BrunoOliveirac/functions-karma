@@ -90,6 +90,34 @@ public class MemberController {
   }
 
   /**
+   * List every member linked to a user, without pagination.
+   *
+   * @param userId Logged user ID
+   * @return Linked members, or an empty list
+   */
+  @Operation(summary = "List every member linked to a user")
+  @GetMapping("/list-all/{userId}")
+  public List<User> listAllLinkedMembers(@PathVariable UUID userId) {
+    return userMemberService.listAllLinkedMembers(userId);
+  }
+
+  /**
+   * List the linked members selected by id.
+   *
+   * @param userId          Logged user ID
+   * @param getByIdsRequest Selected member IDs
+   * @return Matching linked members
+   */
+  @Operation(summary = "List linked members by id")
+  @PostMapping("/list-by-ids/{userId}")
+  public List<User> listLinkedMembersByIds(
+    @PathVariable UUID userId,
+    @RequestBody GetByIdsRequest getByIdsRequest
+  ) {
+    return userMemberService.listLinkedMembersByIds(userId, getByIdsRequest.getIds());
+  }
+
+  /**
    * Get All project IDS linked to a member
    *
    * @param memberId Member ID

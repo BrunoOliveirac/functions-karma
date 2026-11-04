@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -48,6 +49,31 @@ public class UserMemberService {
         userId,
         pageable
       );
+  }
+
+  /**
+   * List every member linked to a user, ordered by name.
+   *
+   * @param userId Logged user ID
+   * @return Linked members, or an empty list
+   */
+  public List<@NonNull User> listAllLinkedMembers(UUID userId) {
+    return userMemberRepository.findDistinctMembersByUserId(userId);
+  }
+
+  /**
+   * List linked members of a user whose ids were selected for export.
+   *
+   * @param userId    Logged user ID
+   * @param memberIds Selected member IDs
+   * @return Matching linked members, ordered by name
+   */
+  public List<@NonNull User> listLinkedMembersByIds(UUID userId, List<UUID> memberIds) {
+    if (memberIds == null || memberIds.isEmpty()) {
+      return List.of();
+    }
+
+    return userMemberRepository.findDistinctMembersByUserIdAndIdIn(userId, memberIds);
   }
 
   /**
