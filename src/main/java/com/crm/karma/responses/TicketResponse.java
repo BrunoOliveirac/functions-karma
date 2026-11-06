@@ -17,6 +17,8 @@ public record TicketResponse(
   String description,
   @Schema(description = "Support acceptance date")
   Instant acceptedAt,
+  @Schema(description = "Ticket completion date")
+  Instant finishedAt,
   @Schema(description = "Ticket status")
   TicketStatus status,
   @Schema(description = "Human-facing ticket code")
@@ -46,6 +48,7 @@ public record TicketResponse(
       ticket.getTitle(),
       ticket.getDescription(),
       ticket.getAcceptedAt(),
+      ticket.getFinishedAt(),
       ticket.getStatus(),
       ticket.getCode(),
       ticket.getUser().getId(),

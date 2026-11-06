@@ -21,6 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.*;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -155,6 +157,47 @@ public class TicketService {
     return counts == null ? TicketCounts.empty() : counts;
   }
 
+  /**
+   * Every ticket visible to the caller, for spreadsheet export.
+   * Users and members pass userId. Support passes supportId.
+   *
+   * @param userId    Owner id
+   * @param supportId Support id
+   * @return Visible tickets, newest first
+   */
+  public List<TicketResponse> listAll(UUID userId, UUID supportId) {
+    ScopeIds scope = requireScope(userId, supportId);
+
+    return map(ticketRepository.findVisible(
+      scope.userId() == null ? 0 : 1,
+      scope.userId() == null ? EMPTY_ID : scope.userId(),
+      scope.supportId() == null ? 0 : 1,
+      scope.supportId() == null ? EMPTY_ID : scope.supportId()
+    ));
+  }
+
+  /**
+   * Visible tickets selected by id, for spreadsheet export.
+   *
+   * @param userId    Owner id
+   * @param supportId Support id
+   * @param ids       Selected ticket ids
+   * @return Matching visible tickets, newest first
+   */
+  public List<TicketResponse> listByIds(UUID userId, UUID supportId, List<UUID> ids) {
+    if (ids == null || ids.isEmpty()) return List.of();
+
+    ScopeIds scope = requireScope(userId, supportId);
+
+    return map(ticketRepository.findVisibleByIds(
+      ids,
+      scope.userId() == null ? 0 : 1,
+      scope.userId() == null ? EMPTY_ID : scope.userId(),
+      scope.supportId() == null ? 0 : 1,
+      scope.supportId() == null ? EMPTY_ID : scope.supportId()
+    ));
+  }
+
   public void add(AddTicketRequest addTicketRequest) {
     User user = userRepository.findById(addTicketRequest.userId())
       .orElseThrow(() -> new RuntimeException("User not found!"));
@@ -245,6 +288,31 @@ public class TicketService {
     }
   }
 
+  private List<TicketResponse> map(List<Ticket> tickets) {
+    return tickets.stream()
+      .map(TicketResponse::from)
+      .sorted(Comparator.comparing(
+        TicketResponse::createdAt,
+        Comparator.nullsLast(Comparator.reverseOrder())
+      ))
+      .toList();
+  }
+
+  private ScopeIds requireScope(UUID userId, UUID supportId) {
+    if (userId != null && supportId != null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Inform only userId or supportId");
+    }
+
+    if (userId == null && supportId == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User or support identifier is required");
+    }
+
+    return new ScopeIds(userId, supportId);
+  }
+
   private record Scope(UUID userId, UUID supportId, TicketStatus status) {
+  }
+
+  private record ScopeIds(UUID userId, UUID supportId) {
   }
 }
