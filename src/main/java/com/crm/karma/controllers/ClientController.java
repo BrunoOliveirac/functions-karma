@@ -2,6 +2,7 @@ package com.crm.karma.controllers;
 
 import com.crm.karma.models.Client;
 import com.crm.karma.requests.CheckEmailRequest;
+import com.crm.karma.requests.GetByIdsRequest;
 import com.crm.karma.requests.UpsertClientRequest;
 import com.crm.karma.responses.StatusResponse;
 import com.crm.karma.services.ClientService;
@@ -49,6 +50,18 @@ public class ClientController {
   @GetMapping("/{clientId}")
   public Optional<Client> getClient(@PathVariable UUID clientId) {
     return clientService.getById(clientId);
+  }
+
+  /**
+   * Get specific clients
+   *
+   * @param getByIdsRequest ID list
+   * @return List of found clients
+   */
+  @Operation(summary = "List specific clients")
+  @PostMapping("/list-by-ids")
+  public List<Client> listByIds(@RequestBody GetByIdsRequest getByIdsRequest) {
+    return clientService.getByIds(getByIdsRequest.getIds());
   }
 
   /**

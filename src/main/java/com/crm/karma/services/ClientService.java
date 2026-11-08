@@ -31,6 +31,10 @@ public class ClientService {
     return clientRepository.findById(clientId);
   }
 
+  public List<Client> getByIds(List<UUID> clientIds) {
+    return clientRepository.findAllById(clientIds);
+  }
+
   public UUID save(UpsertClientRequest upsertClient) {
     Client client = new Client();
 
