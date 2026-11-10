@@ -31,6 +31,9 @@ import java.util.List;
 @Tag(name = "Auth")
 public class AuthController {
 
+  public static final String ACCOUNT_LOCKED_DETAIL =
+    "Account temporarily locked due to too many failed login attempts!";
+
   private final JwtService jwtService;
   private final UserService userService;
   private final PasswordService passwordService;
@@ -76,7 +79,7 @@ public class AuthController {
     if (userService.isLoginLocked(user)) {
       throw new ResponseStatusException(
         HttpStatus.TOO_MANY_REQUESTS,
-        "Account temporarily locked due to too many failed login attempts!"
+        ACCOUNT_LOCKED_DETAIL
       );
     }
 
@@ -91,7 +94,7 @@ public class AuthController {
       if (locked) {
         throw new ResponseStatusException(
           HttpStatus.TOO_MANY_REQUESTS,
-          "Account temporarily locked due to too many failed login attempts!"
+          ACCOUNT_LOCKED_DETAIL
         );
       }
 
