@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -32,6 +33,27 @@ public interface UserMemberRepository extends JpaRepository<@NonNull UserMember,
     @Param("name") String name,
     @Param("userId") UUID userId,
     Pageable pageable
+  );
+
+  @Query(
+    value = "SELECT DISTINCT member.* FROM user_members um " +
+      "INNER JOIN users member ON member.id = um.member_id " +
+      "WHERE um.user_id = :userId " +
+      "ORDER BY member.name ASC",
+    nativeQuery = true
+  )
+  List<@NonNull User> findDistinctMembersByUserId(@Param("userId") UUID userId);
+
+  @Query(
+    value = "SELECT DISTINCT member.* FROM user_members um " +
+      "INNER JOIN users member ON member.id = um.member_id " +
+      "WHERE um.user_id = :userId AND member.id IN (:memberIds) " +
+      "ORDER BY member.name ASC",
+    nativeQuery = true
+  )
+  List<@NonNull User> findDistinctMembersByUserIdAndIdIn(
+    @Param("userId") UUID userId,
+    @Param("memberIds") List<UUID> memberIds
   );
 
   Optional<UserMember> findByMemberIdAndUserId(UUID memberId, UUID userId);

@@ -4,10 +4,12 @@ import com.crm.karma.enums.TicketStatus;
 import com.crm.karma.models.User;
 import com.crm.karma.requests.AcceptTicketRequest;
 import com.crm.karma.requests.AddTicketRequest;
+import com.crm.karma.requests.GetByIdsRequest;
 import com.crm.karma.requests.ListTicketsQueryRequest;
 import com.crm.karma.responses.StatusResponse;
 import com.crm.karma.responses.TicketCounts;
 import com.crm.karma.responses.TicketListResponse;
+import com.crm.karma.responses.TicketResponse;
 import com.crm.karma.services.TicketService;
 import com.crm.karma.services.TicketSseHub;
 import com.crm.karma.services.UserService;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -77,6 +80,43 @@ public class TicketController {
     @RequestParam(required = false) UUID supportId
   ) {
     return ticketService.countTickets(userId, supportId);
+  }
+
+  /**
+   * List every ticket visible to the caller, without pagination.
+   * Users and members pass userId. Support passes supportId.
+   *
+   * @param userId    Owner id
+   * @param supportId Support id
+   * @return Visible tickets, newest first
+   */
+  @Operation(summary = "List every visible ticket")
+  @GetMapping("/list-all")
+  @PreAuthorize("hasAnyRole('USER', 'MEMBER', 'ADMIN', 'SUPPORT')")
+  public List<TicketResponse> listAll(
+    @RequestParam(required = false) UUID userId,
+    @RequestParam(required = false) UUID supportId
+  ) {
+    return ticketService.listAll(userId, supportId);
+  }
+
+  /**
+   * List the visible tickets selected by id.
+   *
+   * @param userId          Owner id
+   * @param supportId       Support id
+   * @param getByIdsRequest Selected ticket ids
+   * @return Matching visible tickets
+   */
+  @Operation(summary = "List visible tickets by id")
+  @PostMapping("/list-by-ids")
+  @PreAuthorize("hasAnyRole('USER', 'MEMBER', 'ADMIN', 'SUPPORT')")
+  public List<TicketResponse> listByIds(
+    @RequestParam(required = false) UUID userId,
+    @RequestParam(required = false) UUID supportId,
+    @RequestBody GetByIdsRequest getByIdsRequest
+  ) {
+    return ticketService.listByIds(userId, supportId, getByIdsRequest.getIds());
   }
 
   /**

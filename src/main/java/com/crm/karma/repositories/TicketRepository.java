@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 public interface TicketRepository extends JpaRepository<@NonNull Ticket, @NonNull UUID> {
@@ -23,6 +24,7 @@ public interface TicketRepository extends JpaRepository<@NonNull Ticket, @NonNul
         t.title,
         t.description,
         t.acceptedAt,
+        t.finishedAt,
         t.status,
         t.code,
         t.user.id,
@@ -118,4 +120,58 @@ public interface TicketRepository extends JpaRepository<@NonNull Ticket, @NonNul
       """
   )
   TicketCounts countForSupport(@Param("supportId") UUID supportId);
+
+  /**
+   * Tickets the caller can see, without pagination.
+   * A user id limits the result to that owner.
+   * A support id includes every open ticket and the tickets assigned to that support.
+   */
+  @Query(
+    """
+      SELECT DISTINCT t
+      FROM Ticket t
+      JOIN FETCH t.user
+      LEFT JOIN FETCH t.support s
+      WHERE t.active = TRUE
+        AND (:hasUser = 0 OR t.user.id = :userId)
+        AND (
+          :hasSupport = 0
+          OR t.status = com.crm.karma.enums.TicketStatus.OPEN
+          OR s.id = :supportId
+        )
+      """
+  )
+  List<Ticket> findVisible(
+    @Param("hasUser") int hasUser,
+    @Param("userId") UUID userId,
+    @Param("hasSupport") int hasSupport,
+    @Param("supportId") UUID supportId
+  );
+
+  /**
+   * Visible tickets whose ids were selected for export.
+   */
+  @Query(
+    """
+      SELECT DISTINCT t
+      FROM Ticket t
+      JOIN FETCH t.user
+      LEFT JOIN FETCH t.support s
+      WHERE t.active = TRUE
+        AND t.id IN :ids
+        AND (:hasUser = 0 OR t.user.id = :userId)
+        AND (
+          :hasSupport = 0
+          OR t.status = com.crm.karma.enums.TicketStatus.OPEN
+          OR s.id = :supportId
+        )
+      """
+  )
+  List<Ticket> findVisibleByIds(
+    @Param("ids") List<UUID> ids,
+    @Param("hasUser") int hasUser,
+    @Param("userId") UUID userId,
+    @Param("hasSupport") int hasSupport,
+    @Param("supportId") UUID supportId
+  );
 }
