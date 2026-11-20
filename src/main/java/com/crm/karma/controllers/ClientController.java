@@ -81,7 +81,7 @@ public class ClientController {
    *
    * @param clientId Client ID
    * @param favorite New updated favorite value
-   * @return OK status when favoriting a client is successful
+   * @return Status OK when adding a client to favorites is successful
    */
   @Operation(summary = "Favorite a specific client")
   @PatchMapping("/favorite/{clientId}")

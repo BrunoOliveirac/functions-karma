@@ -17,7 +17,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "clients", indexes = {
-  @Index(name = "idx_clients_user_email_active", columnList = "user_id, email")
+    @Index(name = "idx_clients_user_email_active", columnList = "user_id, email")
 })
 @Getter
 @Setter
@@ -34,10 +34,17 @@ public class Client extends Model {
   @Column(nullable = false)
   private String email;
 
-
   @Schema(description = "Client's phone")
   @Column(nullable = false)
   private String phone;
+
+  @Schema(description = "Client's cover")
+  @Column(columnDefinition = "TEXT")
+  private String cover;
+
+  @Schema(description = "Client's avatar")
+  @Column(columnDefinition = "TEXT")
+  private String avatar;
 
   @Schema(description = "Notes (description or observation) about the client")
   @Column(length = 500)
@@ -61,7 +68,7 @@ public class Client extends Model {
   private Instant deletedAt;
 
   @Schema(description = "ID sector linked to Client")
-  @ManyToOne(fetch = FetchType.LAZY, optional = true)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "sector_id")
   @OnDelete(action = OnDeleteAction.SET_NULL)
   private Sector sector;

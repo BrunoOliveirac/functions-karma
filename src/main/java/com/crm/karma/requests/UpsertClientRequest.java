@@ -1,9 +1,11 @@
 package com.crm.karma.requests;
 
+import com.crm.karma.configs.PassthroughStringDeserializer;
 import com.crm.karma.validations.ValidEmail;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 import java.util.UUID;
 
@@ -35,4 +37,12 @@ public class UpsertClientRequest {
 
   @Schema(description = "ID sector linked to Client")
   private UUID sectorId;
+
+  @JsonDeserialize(using = PassthroughStringDeserializer.class)
+  @Schema(description = "Cover as a data URL (data:image/...;base64,...). " + "Send an empty string to remove the cover. Omit to keep the current avatar.")
+  private String cover;
+
+  @JsonDeserialize(using = PassthroughStringDeserializer.class)
+  @Schema(description = "Avatar as a data URL (data:image/...;base64,...). " + "Send an empty string to remove the avatar. Omit to keep the current avatar.")
+  private String avatar;
 }
