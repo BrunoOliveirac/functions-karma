@@ -1,6 +1,7 @@
 package com.crm.karma.filters;
 
 import com.crm.karma.services.JwtService;
+import com.crm.karma.services.TokenBlacklistService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,9 +20,11 @@ import java.io.IOException;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
   private final JwtService jwtService;
+  private final TokenBlacklistService tokenBlacklistService;
 
-  public JwtAuthFilter(JwtService jwtService) {
+  public JwtAuthFilter(JwtService jwtService, TokenBlacklistService tokenBlacklistService) {
     this.jwtService = jwtService;
+    this.tokenBlacklistService = tokenBlacklistService;
   }
 
   @Override
@@ -40,7 +43,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
       try {
         String email = jwtService.extractEmail(token);
 
-        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (
+          SecurityContextHolder.getContext().getAuthentication() == null
+            && !tokenBlacklistService.isRevoked(token)
+        ) {
           var roles = jwtService.extractRoles(token);
 
           var authorities = roles.stream()

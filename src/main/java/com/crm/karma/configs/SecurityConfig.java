@@ -1,6 +1,10 @@
 package com.crm.karma.configs;
 
 import com.crm.karma.filters.JwtAuthFilter;
+import com.crm.karma.filters.RateLimitFilter;
+import jakarta.servlet.DispatcherType;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -18,13 +22,15 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@EnableConfigurationProperties(RateLimitProperties.class)
 public class SecurityConfig {
 
   @Bean
   public SecurityFilterChain securityFilterChain(
     HttpSecurity http,
-    JwtAuthFilter jwtAuthFilter
-  ) throws Exception {
+    JwtAuthFilter jwtAuthFilter,
+    RateLimitFilter rateLimitFilter
+  ) {
     http
       .csrf(AbstractHttpConfigurer::disable)
       .cors(Customizer.withDefaults())
@@ -32,14 +38,42 @@ public class SecurityConfig {
         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
       )
       .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+      .addFilterAfter(rateLimitFilter, JwtAuthFilter.class)
       .authorizeHttpRequests(auth -> auth
-        .requestMatchers("/auth/**", "/swagger-ui/**", "/v3/api-docs/**")
+        // SSE/async timeout and error dispatches reuse the original URI
+        // (/notifications/stream) without a SecurityContext: the JWT filter
+        // skips async dispatches and this API is stateless. Denying them
+        // leaves the async connection open and starves the browser.
+        .dispatcherTypeMatchers(DispatcherType.ASYNC, DispatcherType.ERROR)
+        .permitAll()
+        // /error must be public: ResponseStatusException (and other MVC errors)
+        // are forwarded here; if secured, every error becomes 403 Forbidden.
+        .requestMatchers(
+          "/error",
+          "/auth/**",
+          "/swagger-ui/**",
+          "/v3/api-docs/**"
+        )
         .permitAll()
         .anyRequest()
         .authenticated()
       );
 
     return http.build();
+  }
+
+  /**
+   * The filter also lives in the security chain, after the JWT filter.
+   * Leaving the servlet registration on would consume two tokens per request.
+   */
+  @Bean
+  public FilterRegistrationBean<RateLimitFilter> rateLimitFilterRegistration(
+    RateLimitFilter rateLimitFilter
+  ) {
+    FilterRegistrationBean<RateLimitFilter> registration =
+      new FilterRegistrationBean<>(rateLimitFilter);
+    registration.setEnabled(false);
+    return registration;
   }
 
   @Bean

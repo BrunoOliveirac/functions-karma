@@ -1,7 +1,6 @@
 package com.crm.karma.services;
 
 import com.crm.karma.enums.UserType;
-import com.crm.karma.responses.AuthResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -25,7 +24,7 @@ public class JwtService {
     return Keys.hmacShaKeyFor(secretKey.getBytes());
   }
 
-  public AuthResponse generateToken(String email, List<UserType> roles) {
+  public String generateToken(String email, List<UserType> roles) {
     ZoneId zone = ZoneId.systemDefault();
 
     Date expirationDate = Date.from(
@@ -39,19 +38,21 @@ public class JwtService {
       .map(Enum::name)
       .toList();
 
-    return new AuthResponse(expirationDate,
-      Jwts.builder()
-        .subject(email)
-        .claim("roles", roleNames)
-        .issuedAt(new Date())
-        .expiration(expirationDate)
-        .signWith(getSigningKey())
-        .compact()
-    );
+    return Jwts.builder()
+      .subject(email)
+      .claim("roles", roleNames)
+      .issuedAt(new Date())
+      .expiration(expirationDate)
+      .signWith(getSigningKey())
+      .compact();
   }
 
   public String extractEmail(String token) {
     return extractClaim(token, Claims::getSubject);
+  }
+
+  public Date extractExpiration(String token) {
+    return extractClaim(token, Claims::getExpiration);
   }
 
   public List<UserType> extractRoles(String token) {

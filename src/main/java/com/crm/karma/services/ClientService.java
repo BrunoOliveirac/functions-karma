@@ -5,6 +5,7 @@ import com.crm.karma.models.Sector;
 import com.crm.karma.repositories.ClientRepository;
 import com.crm.karma.requests.CheckEmailRequest;
 import com.crm.karma.requests.UpsertClientRequest;
+import com.crm.karma.utils.NormalizerImage;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -18,9 +19,12 @@ public class ClientService {
   private final SectorService sectorService;
   private final ClientRepository clientRepository;
 
-  public ClientService(ClientRepository clientRepository, SectorService sectorService) {
-    this.clientRepository = clientRepository;
+  public ClientService(
+      SectorService sectorService,
+      ClientRepository clientRepository
+  ) {
     this.sectorService = sectorService;
+    this.clientRepository = clientRepository;
   }
 
   public List<Client> getAll(UUID userId) {
@@ -31,13 +35,16 @@ public class ClientService {
     return clientRepository.findById(clientId);
   }
 
+  public List<Client> getByIds(List<UUID> clientIds) {
+    return clientRepository.findAllById(clientIds);
+  }
+
   public UUID save(UpsertClientRequest upsertClient) {
     Client client = new Client();
 
-
     if (upsertClient.getId() != null) {
       client = getById(upsertClient.getId())
-        .orElseThrow(() -> new RuntimeException("Client not found!"));
+          .orElseThrow(() -> new RuntimeException("Client not found!"));
     }
 
     client.setBudget(upsertClient.getBudget());
@@ -47,9 +54,17 @@ public class ClientService {
     client.setPhone(upsertClient.getPhone());
     client.setUserId(upsertClient.getUserId());
 
+    if (upsertClient.getAvatar() != null) {
+      client.setAvatar(NormalizerImage.normalizeImage(upsertClient.getAvatar()));
+    }
+
+    if (upsertClient.getCover() != null) {
+      client.setCover(NormalizerImage.normalizeImage(upsertClient.getCover()));
+    }
+
     if (upsertClient.getSectorId() != null) {
       Sector sector = sectorService.getById(upsertClient.getSectorId())
-        .orElseThrow(() -> new RuntimeException("Sector not found!"));
+          .orElseThrow(() -> new RuntimeException("Sector not found!"));
 
       client.setSector(sector);
     }
@@ -58,9 +73,12 @@ public class ClientService {
     return newClient.getId();
   }
 
-  public void toggleFavorite(UUID clientId, Boolean favorite) {
+  public void toggleFavorite(
+      UUID clientId,
+      Boolean favorite
+  ) {
     Client client = getById(clientId)
-      .orElseThrow(() -> new RuntimeException("Client not found!"));
+        .orElseThrow(() -> new RuntimeException("Client not found!"));
 
     client.setFavorite(favorite);
     clientRepository.save(client);
@@ -75,8 +93,8 @@ public class ClientService {
 
   public Boolean checkEmail(CheckEmailRequest checkEmailRequest) {
     var client = clientRepository.findByUserIdAndEmailAndDeletedAtIsNull(
-      checkEmailRequest.getUserId(),
-      checkEmailRequest.getEmail()
+        checkEmailRequest.getUserId(),
+        checkEmailRequest.getEmail()
     );
 
     return client.isEmpty();

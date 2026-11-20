@@ -2,11 +2,13 @@ package com.crm.karma.controllers;
 
 import com.crm.karma.models.Client;
 import com.crm.karma.requests.CheckEmailRequest;
+import com.crm.karma.requests.GetByIdsRequest;
 import com.crm.karma.requests.UpsertClientRequest;
 import com.crm.karma.responses.StatusResponse;
 import com.crm.karma.services.ClientService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +18,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/clients")
-@PreAuthorize("hasRole('USER')")
+@PreAuthorize("hasAnyRole('USER', 'MEMBER')")
 @Tag(name = "Clients")
 public class ClientController {
 
@@ -51,6 +53,18 @@ public class ClientController {
   }
 
   /**
+   * Get specific clients
+   *
+   * @param getByIdsRequest ID list
+   * @return List of found clients
+   */
+  @Operation(summary = "List specific clients")
+  @PostMapping("/list-by-ids")
+  public List<Client> listByIds(@RequestBody GetByIdsRequest getByIdsRequest) {
+    return clientService.getByIds(getByIdsRequest.getIds());
+  }
+
+  /**
    * Create or Update a client, based on UUID type of ID attribute
    *
    * @param client The client to be created or updated
@@ -58,7 +72,7 @@ public class ClientController {
    */
   @Operation(summary = "Create or edit a client")
   @PostMapping("/upsert")
-  public UUID upsertClient(@RequestBody UpsertClientRequest client) {
+  public UUID upsertClient(@Valid @RequestBody UpsertClientRequest client) {
     return clientService.save(client);
   }
 
@@ -67,7 +81,7 @@ public class ClientController {
    *
    * @param clientId Client ID
    * @param favorite New updated favorite value
-   * @return OK status when favoriting a client is successful
+   * @return Status OK when adding a client to favorites is successful
    */
   @Operation(summary = "Favorite a specific client")
   @PatchMapping("/favorite/{clientId}")
@@ -79,7 +93,7 @@ public class ClientController {
   /**
    * Delete the client from the system
    *
-   * @param client Client to be deleted
+   * @param clientId Client ID to be deleted
    * @return OK status when deletion a client is successful
    */
   @Operation(summary = "Delete logically a specific client")
@@ -97,7 +111,7 @@ public class ClientController {
    */
   @Operation(summary = "Verify the availability of an e-mail address")
   @PostMapping("/check-email")
-  public Boolean checkEmail(@RequestBody CheckEmailRequest checkEmailRequest) {
+  public Boolean checkEmail(@Valid @RequestBody CheckEmailRequest checkEmailRequest) {
     return clientService.checkEmail(checkEmailRequest);
   }
 }
