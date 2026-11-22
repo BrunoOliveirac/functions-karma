@@ -6,6 +6,7 @@ import com.crm.karma.repositories.ClientRepository;
 import com.crm.karma.requests.CheckEmailRequest;
 import com.crm.karma.requests.UpsertClientRequest;
 import com.crm.karma.utils.NormalizerImage;
+import com.crm.karma.validations.Base64JpegValidator;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -40,6 +41,8 @@ public class ClientService {
   }
 
   public UUID save(UpsertClientRequest upsertClient) {
+    Base64JpegValidator.decodeAndValidateJpeg(upsertClient.getAvatar());
+    Base64JpegValidator.decodeAndValidateJpeg(upsertClient.getCover());
     Client client = new Client();
 
     if (upsertClient.getId() != null) {

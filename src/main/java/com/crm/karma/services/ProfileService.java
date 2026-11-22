@@ -5,6 +5,7 @@ import com.crm.karma.repositories.UserRepository;
 import com.crm.karma.requests.UpdateProfileRequest;
 import com.crm.karma.responses.ProfileResponse;
 import com.crm.karma.utils.NormalizerImage;
+import com.crm.karma.validations.Base64JpegValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -62,6 +63,7 @@ public class ProfileService {
       String currentToken,
       UpdateProfileRequest request
   ) {
+    Base64JpegValidator.decodeAndValidateJpeg(request.getAvatar());
     User user = requireActiveUser(email);
 
     if (!StringUtils.hasText(request.getName())) {
